@@ -1,0 +1,35 @@
+// start comment
+
+// near comment
+struct DBoard {
+	DHuman[] humans;
+	EBoardState state;
+}
+
+// comment test
+struct DHuman {
+	long[] id;
+	float percent;
+	float[] percents; // field comment
+	string name;
+	DCardPile handPile;
+	String[] cards;
+}
+
+struct DCardPile {
+	DCard[] cards;
+}
+
+struct DCard {
+	long id;
+	String sn;
+}
+
+struct SCGameStart {
+}
+
+enum EBoardState {
+	Normal, // normal
+	Run, // run
+	Close, // close
+}
