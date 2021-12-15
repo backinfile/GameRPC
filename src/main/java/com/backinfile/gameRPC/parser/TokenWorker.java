@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.backinfile.dSync.parser.Token.TokenType;
-
 public class TokenWorker {
 	private int lineno = 0;
 	private int lineIndex = 0;

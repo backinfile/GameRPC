@@ -1,5 +1,7 @@
 package com.backinfile.gameRPC.parser;
 
+import com.backinfile.gameRPC.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,19 +10,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.backinfile.dSync.Log;
-import com.backinfile.dSync.parser.DSyncStruct.DSyncStructType;
-import com.backinfile.dSync.parser.DSyncStruct.DSyncVariable;
-import com.backinfile.dSync.parser.Token.TokenType;
-
 public class SyntaxWorker {
-	private Map<String, DSyncStruct> userDefineStructMap = new HashMap<String, DSyncStruct>();
-	private List<Token> tokens = new ArrayList<Token>();
+	private final Map<String, DSyncStruct> userDefineStructMap = new HashMap<String, DSyncStruct>();
+	private final List<Token> tokens = new ArrayList<Token>();
 	private static final String DS_MSG = "message";
 	private static final String DS_STRUCT = "struct";
 	private static final String DS_ENUM = "enum";
-	private Set<String> messageStructs = new HashSet<>();
-	private List<Token> lastCommentTokens = new ArrayList<>();
+	private final Set<String> messageStructs = new HashSet<>();
+	private final List<Token> lastCommentTokens = new ArrayList<>();
 
 	public static class Result {
 		public boolean hasError = false;
@@ -104,7 +101,7 @@ public class SyntaxWorker {
 		match(TokenType.RBrace);
 
 		if (userDefineStructMap.containsKey(typeName)) {
-			Log.Gen.warn("duplicate struct:{}!", typeName);
+			Log.parser.warn("duplicate struct:{}!", typeName);
 		}
 
 		userDefineStructMap.put(typeName, struct);
