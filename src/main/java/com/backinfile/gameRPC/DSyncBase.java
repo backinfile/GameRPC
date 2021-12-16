@@ -6,9 +6,6 @@ import org.msgpack.core.MessageUnpacker;
 
 import java.util.BitSet;
 
-/**
- * 此类是自动生成的，不可修改
- */
 public abstract class DSyncBase implements ISerializable {
     protected BitSet changedMap;
 

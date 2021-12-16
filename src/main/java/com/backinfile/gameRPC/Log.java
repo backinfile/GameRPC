@@ -1,8 +1,9 @@
 package com.backinfile.gameRPC;
 
-import com.backinfile.support.log.LogManager;
-import com.backinfile.support.log.Logger;
+import com.backinfile.gameRPC.support.log.LogManager;
+import com.backinfile.gameRPC.support.log.Logger;
 
 public class Log {
-    public static Logger parser = LogManager.getLogger("serialize");
+    public static Logger parser = LogManager.getLogger("gameRPC.serialize");
+    public static Logger core = LogManager.getLogger("gameRPC.core");
 }
