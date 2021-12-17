@@ -1,10 +1,9 @@
 package com.backinfile.gameRPC.test;
 
 import com.backinfile.gameRPC.DSyncBase;
-import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageUnpacker;
+import com.backinfile.gameRPC.serialize.InputStream;
+import com.backinfile.gameRPC.serialize.OutputStream;
 
-import java.io.IOException;
 import java.util.BitSet;
 
 public class DHuman extends DSyncBase {
@@ -57,20 +56,15 @@ public class DHuman extends DSyncBase {
     }
 
     @Override
-    public void writeTo(MessagePacker packer) throws IOException {
-        byte[] changedMapBytes = changedMap.toByteArray();
-        packer.packBinaryHeader(changedMapBytes.length);
-        packer.addPayload(changedMapBytes);
-        packer.packLong(id);
-        packer.packString(name);
+    public void writeTo(OutputStream out) {
+        out.write(id);
+        out.write(name);
     }
 
     @Override
-    public void readFrom(MessageUnpacker unpacker) throws IOException {
-        int length = unpacker.unpackBinaryHeader();
-        changedMap = BitSet.valueOf(unpacker.readPayload(length));
-        id = unpacker.unpackLong();
-        name = unpacker.unpackString();
+    public void readFrom(InputStream in) {
+        id = in.read();
+        name = in.read();
     }
 
     public static class Builder extends DSyncBase.Builder {

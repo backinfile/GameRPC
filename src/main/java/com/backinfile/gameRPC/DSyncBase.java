@@ -1,8 +1,6 @@
 package com.backinfile.gameRPC;
 
-import com.backinfile.gameRPC.rpc.ISerializable;
-import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageUnpacker;
+import com.backinfile.gameRPC.serialize.ISerializable;
 
 import java.util.BitSet;
 

@@ -1,25 +1,47 @@
 package com.backinfile.gameRPC.rpc;
 
-import java.io.IOException;
-import java.util.Objects;
-
-import com.backinfile.mrpc.serilize.ISerializable;
-import com.backinfile.mrpc.serilize.InputStream;
-import com.backinfile.mrpc.serilize.OutputStream;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
 
-public class CallPoint{
-	public final String nodeID;
-	public final String portID;
+import java.io.IOException;
 
-	public CallPoint(CallPoint callPoint) {
-		this.nodeID = callPoint.nodeID;
-		this.portID = callPoint.portID;
-	}
+public class CallPoint implements ISerializable {
+    public String nodeID;
+    public String portID;
 
-	public CallPoint(String nodeID, String portID) {
-		this.nodeID = nodeID;
-		this.portID = portID;
-	}
+    private CallPoint() {
+
+    }
+
+    public CallPoint(CallPoint callPoint) {
+        this.nodeID = callPoint.nodeID;
+        this.portID = callPoint.portID;
+    }
+
+    public CallPoint(String nodeID, String portID) {
+        this.nodeID = nodeID;
+        this.portID = portID;
+    }
+
+    @Override
+    public void writeTo(MessagePacker packer) throws IOException {
+        packer.packString(nodeID);
+        packer.packString(portID);
+    }
+
+    @Override
+    public void readFrom(MessageUnpacker unpacker) throws IOException {
+        nodeID = unpacker.unpackString();
+        portID = unpacker.unpackString();
+    }
+
+    public static void pack(CallPoint callPoint, MessagePacker packer) throws IOException {
+        callPoint.writeTo(packer);
+    }
+
+    public static CallPoint unpack(MessageUnpacker unpacker) throws IOException {
+        CallPoint callPoint = new CallPoint();
+        callPoint.readFrom(unpacker);
+        return callPoint;
+    }
 }

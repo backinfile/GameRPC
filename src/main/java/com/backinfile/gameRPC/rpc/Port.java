@@ -23,11 +23,9 @@ public abstract class Port implements Delayed {
 
     // 上次执行时间
     protected long time = 0;
-    private boolean isInited = false;
 
     // 两次执行时间的时间差距
     private long deltaTime = 0;
-    private long lastPulsePerSecondTime = 0L;
 
     // 执行频率（每秒执行几次)
     private int HZ = 33;
@@ -50,21 +48,14 @@ public abstract class Port implements Delayed {
 
     public abstract void startup();
 
-    public abstract void pulse();
+    public abstract void casePulseBefore();
 
-    /**
-     * 注意每帧先执行pulse再执行pulsePerSec
-     */
-    public abstract void pulsePerSec();
+    public abstract void casePulse();
+
+    public abstract void casePulseAfter();
+
 
     public abstract void handleRequest(int requestKey, Params param);
-
-    public void checkInit() {
-        if (!isInited) {
-            startup();
-            isInited = true;
-        }
-    }
 
     public void caseRunOnce() {
         // 设置port时间
@@ -77,13 +68,10 @@ public abstract class Port implements Delayed {
         terminal.checkCallReturnTimeout();
         // 处理rpc
         terminal.executeInCall();
-        // 子类的心跳
-        pulse();
-        // 子类每秒心跳
-        if (time - lastPulsePerSecondTime >= Time2.SEC) {
-            lastPulsePerSecondTime = time;
-            pulsePerSec();
-        }
+        // 心跳
+        casePulseBefore();
+        casePulse();
+        casePulseAfter();
         // 执行post函数
         while (!postActionList.isEmpty()) {
             Action0 action = postActionList.poll();
@@ -118,8 +106,8 @@ public abstract class Port implements Delayed {
         terminal.returns(call, results);
     }
 
-    public void listen(Action1<IResult> consumer, Object... contexts) {
-        terminal.listenLastOutCall(consumer, contexts);
+    public void listen(Action1<IResult> consumer) {
+        terminal.listenLastOutCall(consumer);
     }
 
     public String getPortId() {

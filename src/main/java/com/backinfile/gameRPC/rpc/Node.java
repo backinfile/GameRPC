@@ -1,9 +1,7 @@
 package com.backinfile.gameRPC.rpc;
 
 import com.backinfile.gameRPC.Log;
-import com.backinfile.mrpc.serilize.InputStream;
-import com.backinfile.mrpc.serilize.OutputStream;
-import com.backinfile.mrpc.utils.Utils2;
+import com.backinfile.gameRPC.support.Utils;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -35,30 +33,6 @@ public class Node {
         dispatchThreads.start();
     }
 
-//	public void localStartUp(String[] packageNames, String[] types) {
-//		Set<Class<?>> classes = new HashSet<>();
-//		for (var packageName : packageNames) {
-//			classes.addAll(ReflectionUtils.getClassesExtendsClassAndWithAnnotation(packageName, Port.class,
-//					AutoStartUp.class));
-//		}
-//		for (Class<?> clazz : classes) {
-//			AutoStartUp annotation = clazz.getAnnotation(AutoStartUp.class);
-//			if (types.length > 0 && !Utils2.intersect(annotation.value(), types)) {
-//				continue;
-//			}
-//			try {
-//				String portId = clazz.getName();
-//				Port port = (Port) clazz.getDeclaredConstructor(String.class).newInstance(portId);
-//				port.checkInit(); // 初始化
-//				this.addPort(port); // 添加到node
-//				Log.Core.info("{} start", portId);
-//			} catch (Exception e) {
-//				Log.Core.error("create service failed: " + clazz.getName(), e);
-//			}
-//		}
-//
-//		startUp();
-//	}
 
     public void abort() {
         Log.core.info("node 中断中.....");
@@ -76,7 +50,7 @@ public class Node {
         Port port = portsWaitForRun.poll();
         if (port == null) {
             reSchedule(THREAD_NUM);
-            Utils2.sleep(1);
+            Utils.sleep(1);
             return;
         }
         pulsePort(port);
