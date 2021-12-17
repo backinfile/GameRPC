@@ -1,7 +1,10 @@
 package com.backinfile.gameRPC.rpc;
 
 import com.backinfile.gameRPC.Log;
+import com.backinfile.gameRPC.serialize.InputStream;
+import com.backinfile.gameRPC.serialize.OutputStream;
 import com.backinfile.gameRPC.support.Utils;
+import com.backinfile.gameRPC.support.func.Action0;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -13,6 +16,7 @@ public class Node {
     private final ConcurrentHashMap<String, Port> allPorts = new ConcurrentHashMap<>();
     private DispatchThreads dispatchThreads;
     private static final int THREAD_NUM = 3;
+    private final ConcurrentLinkedQueue<Action0> postActionList = new ConcurrentLinkedQueue<>();
 
     public final String nodeId;
 
@@ -27,9 +31,9 @@ public class Node {
         return Instance;
     }
 
-    public void startUp() {
-        Thread.currentThread().setName("Thread-Node");
-        dispatchThreads = new DispatchThreads(THREAD_NUM, this::dispatchRun);
+    public void startUp(String name) {
+        Thread.currentThread().setName("Node-" + name);
+        dispatchThreads = new DispatchThreads(("Node-" + name) + "DispatchThread", THREAD_NUM, null, this::dispatchRun, null);
         dispatchThreads.start();
     }
 
@@ -54,6 +58,13 @@ public class Node {
             return;
         }
         pulsePort(port);
+        while (postActionList.isEmpty()) {
+            try {
+                postActionList.poll().invoke();
+            } catch (Exception e) {
+                Log.core.error(e, "error in invoke postAction");
+            }
+        }
     }
 
     private void pulsePort(Port port) {
@@ -116,7 +127,12 @@ public class Node {
         byte[] bytes = outputStream.getBytes();
         InputStream inputStream = new InputStream(bytes);
         Call newCall = inputStream.read();
+        outputStream.close();
+        inputStream.close();
         return newCall;
     }
 
+    public void post(Action0 action0) {
+        postActionList.add(action0);
+    }
 }

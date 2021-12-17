@@ -1,8 +1,8 @@
 package com.backinfile.gameRPC.rpc;
 
 import com.backinfile.gameRPC.Log;
+import com.backinfile.gameRPC.support.Time2;
 import com.backinfile.gameRPC.support.func.Action1;
-import com.backinfile.mrpc.utils.Time2;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -22,8 +22,8 @@ public class Terminal implements ITerminal {
     private final Node mNode;
     private final Port mPort;
 
-    public static final long CALL_EXPIRE_TIME = 30 * Time2.SECOND;
-    public static final long LISTEN_EXPIRE_TIME = 1 * Time2.SECOND;
+    public static final long CALL_EXPIRE_TIME = 30 * Time2.SEC;
+    public static final long LISTEN_EXPIRE_TIME = Time2.SEC;
 
     public Terminal(Port port, Node node) {
         this.mPort = port;
@@ -165,15 +165,15 @@ public class Terminal implements ITerminal {
             if (call == null)
                 break;
             try {
-                if (call.type == Call.RPC_TYPE_CALL) {
+                if (call.type == ConstRPC.RPC_TYPE_CALL) {
                     invoke(call);
-                } else if (call.type == Call.RPC_TYPE_CALL_RETURN) {
+                } else if (call.type == ConstRPC.RPC_TYPE_CALL_RETURN) {
                     processCallReturn(call);
-                } else if (call.type == Call.RPC_TYPE_CALL_RETURN_ERROR) {
+                } else if (call.type == ConstRPC.RPC_TYPE_CALL_RETURN_ERROR) {
                     processErrorCallReturn(call);
                 }
             } catch (Exception e) {
-                Log.Core.error("error in execute inCall", e);
+                Log.core.error("error in execute inCall", e);
             }
         }
     }
@@ -188,7 +188,7 @@ public class Terminal implements ITerminal {
             return;
         }
         WaitResult waitResult = waitingResponseList.remove(call.id);
-        Result result = new Result(call.args);
+        MapResult result = new MapResult(call.args);
         result.setError(false);
         result.updateContexts(waitResult.contexts.getValues());
         for (var callback : waitResult.callbackHandlers) {
@@ -205,7 +205,7 @@ public class Terminal implements ITerminal {
             return;
         }
         WaitResult waitResult = waitingResponseList.remove(call.id);
-        Result result = new Result(call.args);
+        MapResult result = new MapResult(call.args);
         result.setError(true);
         result.updateContexts(waitResult.contexts.getValues());
         for (var callback : waitResult.errorHandlers) {

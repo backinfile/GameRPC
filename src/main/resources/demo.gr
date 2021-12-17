@@ -1,9 +1,7 @@
 // start comment
 
-language=java
-java-package=com.backinfile.gen
-
-
+param language="java"
+param package="com.backinfile.gen"
 
 // near comment
 struct DBoard {
@@ -30,11 +28,21 @@ struct DCard {
 	String sn;
 }
 
-message SCGameStart {
-}
-
 enum EBoardState {
 	Normal, // normal
 	Run, // run
 	Close, // close
+}
+
+service LoginService {
+    rpc login(String token, String name) returns(int code, String token);
+}
+
+service RoomService {
+
+}
+
+service Client {
+    rpc boardInit(DBoard board);
+    rpc gameStart();
 }

@@ -1,65 +1,84 @@
 package com.backinfile.gameRPC.rpc;
 
+import com.backinfile.gameRPC.Log;
+import com.backinfile.gameRPC.support.func.Action0;
+
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.backinfile.mrpc.function.Action;
-import com.backinfile.mrpc.support.Log;
-
 /**
- * 开启若干个线程来循环执行一个Action
+ * 开启若干个线程来执行一个Action0
  */
 public class DispatchThreads {
-	private final Action run;
-	private final int num;
+    private final String name;
+    private final Action0 start;
+    private final Action0 run;
+    private final Action0 dispose;
+    private final int num;
 
-	private final ArrayList<Thread> threads = new ArrayList<>();
-	private volatile boolean threadAbort = false;
-	private AtomicInteger abortedNum = new AtomicInteger(0);
+    private final ArrayList<Thread> threads = new ArrayList<>();
+    private volatile boolean threadAbort = false;
+    private final AtomicInteger abortedNum = new AtomicInteger(0);
 
-	public DispatchThreads(int num, Action run) {
-		this.run = run;
-		this.num = num;
-	}
+    public DispatchThreads(Action0 run) {
+        this(3, run);
+    }
 
-	public DispatchThreads(Action run) {
-		this(3, run);
-	}
 
-	public void start() {
-		for (int i = 0; i < num; i++) {
-			Thread thread = new Thread(this::runThread);
-			thread.setName("DispatchThread-" + i);
-			thread.setDaemon(true);
-			thread.start();
-			threads.add(thread);
-		}
-	}
+    public DispatchThreads(int num, Action0 run) {
+        this("DispatchThread", num, null, run, null);
+    }
 
-	private void runThread() {
-		while (!threadAbort) {
+    public DispatchThreads(String name, int num, Action0 start, Action0 run, Action0 dispose) {
+        this.name = name;
+        this.num = num;
+        this.start = start;
+        this.run = run;
+        this.dispose = dispose;
+    }
 
-			try {
-				run.invoke();
-			} catch (Exception e) {
-				Log.Core.error("线程运行出错：{}", e);
-			}
-		}
-		abortedNum.incrementAndGet();
-	}
 
-	public void abort() {
-		threadAbort = true;
-	}
+    public void start() {
+        for (int i = 0; i < num; i++) {
+            Thread thread = new Thread(this::runThread);
+            thread.setName(name + "-" + i);
+            thread.setDaemon(true);
+            thread.start();
+            threads.add(thread);
+        }
+    }
 
-	public void abortSync() {
-		threadAbort = true;
+    private void runThread() {
+        if (start != null) {
+            try {
+                start.invoke();
+            } catch (Exception e) {
+                Log.core.error(e, "线程运行start出错");
+            }
+        }
+        while (!threadAbort) {
+            try {
+                run.invoke();
+            } catch (Exception e) {
+                Log.core.error(e, "线程运行run出错");
+            }
+        }
+        if (dispose != null) {
+            try {
+                dispose.invoke();
+            } catch (Exception e) {
+                Log.core.error(e, "线程运行dispose出错");
+            }
+        }
+        abortedNum.incrementAndGet();
+    }
 
-		while (!isAborted())
-			;
-	}
+    public void abort() {
+        threadAbort = true;
+    }
 
-	public final boolean isAborted() {
-		return abortedNum.get() >= num;
-	}
+
+    public final boolean isAborted() {
+        return abortedNum.get() >= num;
+    }
 }

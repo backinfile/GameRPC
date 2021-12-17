@@ -1,14 +1,13 @@
 package com.backinfile.gameRPC.rpc;
 
-import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageUnpacker;
+import com.backinfile.gameRPC.serialize.InputStream;
+import com.backinfile.gameRPC.serialize.OutputStream;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 
 @SuppressWarnings("unchecked")
-public class Result implements IResult {
+public class MapResult implements IResult {
 
     private int errorCode = 0;
     private HashMap<String, Object> mapValues = null;
@@ -16,10 +15,10 @@ public class Result implements IResult {
     /**
      * 仅供序列化使用
      */
-    public Result() {
+    public MapResult() {
     }
 
-    public Result(Object[] values) {
+    public MapResult(Object[] values) {
         addValues(values);
     }
 
@@ -55,14 +54,15 @@ public class Result implements IResult {
         this.errorCode = errorCode;
     }
 
-
     @Override
-    public void writeTo(MessagePacker packer) throws IOException {
-
+    public void writeTo(OutputStream out) {
+        out.write(errorCode);
+        out.write(mapValues);
     }
 
     @Override
-    public void readFrom(MessageUnpacker unpacker) throws IOException {
-
+    public void readFrom(InputStream in) {
+        errorCode = in.read();
+        mapValues = in.read();
     }
 }

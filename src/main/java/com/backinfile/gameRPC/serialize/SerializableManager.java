@@ -3,22 +3,19 @@ package com.backinfile.gameRPC.serialize;
 import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.rpc.Call;
 import com.backinfile.gameRPC.rpc.CallPoint;
+import com.backinfile.gameRPC.rpc.MapResult;
 import com.backinfile.gameRPC.rpc.Params;
-import com.backinfile.gameRPC.rpc.Result;
-import com.backinfile.gameRPC.support.reflection.ReflectionUtils;
-import com.google.protobuf.Message;
+import org.reflections.Reflections;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 代码生成改为反射形式
  */
 public class SerializableManager {
+    private static final Map<Integer, Object> idSaves = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public static <T> T parseFromSerializeID(int id) {
@@ -32,16 +29,15 @@ public class SerializableManager {
         return obj.getClass().getName().hashCode();
     }
 
-    private static final Map<Integer, Object> idSaves = new HashMap<>();
 
-    public static void registerAll(String packageName) {
-        registerAllEnum(packageName);
-        registerAllSerialize(packageName);
-        registerAllMessage(packageName);
+    public static void registerAll(ClassLoader... classLoaders) {
+        Reflections reflections = new Reflections(SerializableManager.class.getClassLoader(), classLoaders);
+        registerAllEnum(reflections);
+        registerAllSerialize(reflections);
     }
 
-    private static void registerAllSerialize(String packageName) {
-        Set<Class<?>> classes = ReflectionUtils.getClassesExtendsClass(packageName, ISerializable.class);
+    private static void registerAllSerialize(Reflections reflections) {
+        Collection<Class<? extends ISerializable>> classes = reflections.getSubTypesOf(ISerializable.class);
         classes.addAll(registerLocalSerialize());
         for (Class<?> clazz : classes) {
             try {
@@ -54,22 +50,9 @@ public class SerializableManager {
         }
     }
 
-    private static void registerAllMessage(String packageName) {
-        Set<Class<?>> classes = ReflectionUtils.getClassesExtendsClass(packageName, Message.class);
-        for (Class<?> clazz : classes) {
-            try {
-                int id = getCommonSerializeID(clazz);
-                Method method = clazz.getDeclaredMethod("newBuilder");
-                Object value = method.invoke(null);
-                idSaves.put(id, value);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static void registerAllEnum(String packageName) {
-        Set<Class<?>> classes = ReflectionUtils.getClassesExtendsClass(packageName, Enum.class);
+    @SuppressWarnings("rawtypes")
+    private static void registerAllEnum(Reflections reflections) {
+        Set<Class<? extends Enum>> classes = reflections.getSubTypesOf(Enum.class);
         for (Class<?> clazz : classes) {
             try {
                 int id = getCommonSerializeID(clazz);
@@ -83,12 +66,12 @@ public class SerializableManager {
         }
     }
 
-    private static Set<Class<?>> registerLocalSerialize() {
-        Set<Class<?>> set = new HashSet<>();
+    private static Collection<Class<? extends ISerializable>> registerLocalSerialize() {
+        Set<Class<? extends ISerializable>> set = new HashSet<>();
         set.add(Call.class);
         set.add(CallPoint.class);
         set.add(Params.class);
-        set.add(Result.class);
+        set.add(MapResult.class);
         return set;
     }
 }

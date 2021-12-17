@@ -18,6 +18,8 @@ dependencies {
     implementation group: 'org.javassist', name: 'javassist', version: '3.28.0-GA'
     implementation group: 'org.msgpack', name: 'msgpack-core', version: '0.8.3'
     implementation 'io.netty:netty-all:4.1.44.Final'
+    implementation group: 'org.reflections', name: 'reflections', version: '0.9.11'
+
 
 }
 

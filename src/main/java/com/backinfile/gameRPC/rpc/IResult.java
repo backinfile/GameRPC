@@ -1,5 +1,7 @@
 package com.backinfile.gameRPC.rpc;
 
+import com.backinfile.gameRPC.serialize.ISerializable;
+
 public interface IResult extends ISerializable {
     public static final String DEFAULT_KEY = "_DEFAULT_KEY_";
 

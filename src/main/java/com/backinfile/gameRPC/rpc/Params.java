@@ -1,10 +1,9 @@
 package com.backinfile.gameRPC.rpc;
 
-import com.backinfile.mrpc.support.Log;
-import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageUnpacker;
+import com.backinfile.gameRPC.serialize.ISerializable;
+import com.backinfile.gameRPC.serialize.InputStream;
+import com.backinfile.gameRPC.serialize.OutputStream;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,12 +61,12 @@ public class Params implements ISerializable {
     }
 
     @Override
-    public void writeTo(MessagePacker packer) throws IOException {
-		
+    public void writeTo(OutputStream out) {
+        out.write(values);
     }
 
     @Override
-    public void readFrom(MessageUnpacker unpacker) throws IOException {
-
+    public void readFrom(InputStream in) {
+        values = in.read();
     }
 }

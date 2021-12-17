@@ -1,13 +1,11 @@
 package com.backinfile.gameRPC.rpc;
 
-import com.backinfile.gameRPC.DSyncBase;
-import com.backinfile.gameRPC.pack.PackManager;
 import com.backinfile.gameRPC.serialize.ISerializable;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
+import com.backinfile.gameRPC.support.Utils;
 
-import static com.backinfile.gameRPC.rpc.ConstRPC.RPC_TYPE_CALL_RETURN;
-import static com.backinfile.gameRPC.rpc.ConstRPC.RPC_TYPE_CALL_RETURN_ERROR;
+import static com.backinfile.gameRPC.rpc.ConstRPC.*;
 
 public class Call implements ISerializable {
     public long id;
@@ -16,19 +14,30 @@ public class Call implements ISerializable {
 
     public int type;
     public int method;
-    public Object[] args;
-    public int code;
+    public Object[] args = null;
+    public int code = 0;
 
 
     public Call() {
     }
 
-    public Call newCallReturn(DSyncBase base) {
+    public static Call newCall(CallPoint from, CallPoint to, int method, Object[] args) {
+        Call call = new Call();
+        call.id = Utils.applyId();
+        call.from = from;
+        call.to = to;
+        call.args = args;
+        call.method = method;
+        call.type = RPC_TYPE_CALL;
+        return call;
+    }
+
+    public Call newCallReturn(Object[] args) {
         Call callReturn = new Call();
         callReturn.id = id;
         callReturn.from = to;
         callReturn.to = from;
-        callReturn.args = PackManager.pack(base);
+        callReturn.args = args;
         callReturn.type = RPC_TYPE_CALL_RETURN;
         return callReturn;
     }
@@ -56,6 +65,12 @@ public class Call implements ISerializable {
 
     @Override
     public void readFrom(InputStream in) {
-
+        id = in.read();
+        to = in.read();
+        from = in.read();
+        type = in.read();
+        method = in.read();
+        args = in.read();
+        code = in.read();
     }
 }

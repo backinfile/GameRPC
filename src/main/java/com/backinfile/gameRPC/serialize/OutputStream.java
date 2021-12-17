@@ -4,6 +4,7 @@ import com.backinfile.gameRPC.Log;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -154,6 +155,14 @@ public class OutputStream {
             }
         } else {
             throw new Exception("无法序列化" + obj.getClass().getName());
+        }
+    }
+
+    public void close() {
+        try {
+            packer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

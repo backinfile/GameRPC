@@ -4,6 +4,7 @@ import com.backinfile.gameRPC.Log;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
@@ -162,5 +163,11 @@ public class InputStream {
         return null;
     }
 
-
+    public void close() {
+        try {
+            unpacker.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

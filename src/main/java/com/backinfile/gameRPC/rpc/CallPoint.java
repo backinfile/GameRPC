@@ -1,16 +1,14 @@
 package com.backinfile.gameRPC.rpc;
 
-import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageUnpacker;
-
-import java.io.IOException;
+import com.backinfile.gameRPC.serialize.ISerializable;
+import com.backinfile.gameRPC.serialize.InputStream;
+import com.backinfile.gameRPC.serialize.OutputStream;
 
 public class CallPoint implements ISerializable {
     public String nodeID;
     public String portID;
 
     private CallPoint() {
-
     }
 
     public CallPoint(CallPoint callPoint) {
@@ -24,24 +22,14 @@ public class CallPoint implements ISerializable {
     }
 
     @Override
-    public void writeTo(MessagePacker packer) throws IOException {
-        packer.packString(nodeID);
-        packer.packString(portID);
+    public void writeTo(OutputStream out) {
+        out.write(nodeID);
+        out.write(portID);
     }
 
     @Override
-    public void readFrom(MessageUnpacker unpacker) throws IOException {
-        nodeID = unpacker.unpackString();
-        portID = unpacker.unpackString();
-    }
-
-    public static void pack(CallPoint callPoint, MessagePacker packer) throws IOException {
-        callPoint.writeTo(packer);
-    }
-
-    public static CallPoint unpack(MessageUnpacker unpacker) throws IOException {
-        CallPoint callPoint = new CallPoint();
-        callPoint.readFrom(unpacker);
-        return callPoint;
+    public void readFrom(InputStream in) {
+        nodeID = in.read();
+        portID = in.read();
     }
 }
