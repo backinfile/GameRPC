@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Server extends Thread {
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
-
     private final int port;
 
     public Server(int port) {

@@ -77,6 +77,14 @@ public class DispatchThreads {
         threadAbort = true;
     }
 
+    public void abortSync() {
+        threadAbort = true;
+        while (true) {
+            if (isAborted()) {
+                break;
+            }
+        }
+    }
 
     public final boolean isAborted() {
         return abortedNum.get() >= num;

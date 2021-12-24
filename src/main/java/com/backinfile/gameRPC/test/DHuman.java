@@ -5,10 +5,12 @@ import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
 
 import java.util.BitSet;
+import java.util.Objects;
 
 public class DHuman extends DSyncBase {
-    public static final String TYPE_NAME = "DHuman";
-    public static final int TYPE_ID = 1;
+    public static final String TYPE_NAME = DHuman.class.getSimpleName();
+    public static final int TYPE_ID = Objects.hash(DHuman.class.getSimpleName());
+    public static int FILED_NUM = 2;
 
     private long id;
     private String name;
@@ -16,26 +18,12 @@ public class DHuman extends DSyncBase {
     DHuman() {
     }
 
-    private DHuman(DHuman.Builder builder) {
-        this.changedMap = BitSet.valueOf(builder.getChangeMap().toByteArray());
-        this.id = builder.id;
-        this.name = builder.name;
-    }
-
     public static DHuman.Builder newBuilder() {
         return new DHuman.Builder();
     }
 
-    public static DHuman.Builder parseFrom(DHuman dHuman) {
-        return new DHuman.Builder(dHuman);
-    }
-
-    public static DHuman.Builder parseFrom(DHuman.Builder builder) {
-        return new DHuman.Builder(builder);
-    }
-
     public boolean hasId() {
-        return changedMap.get(0);
+        return _changedMap.get(0);
     }
 
     public long getId() {
@@ -43,17 +31,13 @@ public class DHuman extends DSyncBase {
     }
 
     public boolean hasName() {
-        return changedMap.get(1);
+        return _changedMap.get(1);
     }
 
     public String getName() {
         return name;
     }
 
-
-    BitSet getChangeMap() {
-        return changedMap;
-    }
 
     @Override
     public void writeTo(OutputStream out) {
@@ -72,39 +56,26 @@ public class DHuman extends DSyncBase {
         private String name = null;
 
         private Builder() {
-            changedMap = new BitSet(2);
-        }
-
-        private Builder(DHuman dHuman) {
-            this.changedMap = new BitSet(2);
-            changedMap.or(dHuman.getChangeMap());
-            this.id = dHuman.id;
-            this.name = dHuman.name;
-        }
-
-        private Builder(DHuman.Builder builder) {
-            this.changedMap = new BitSet(2);
-            changedMap.or(builder.getChangeMap());
-            this.id = builder.id;
-            this.name = builder.name;
+            this._changedMap = new BitSet(FILED_NUM);
         }
 
         public DHuman build() {
-            return new DHuman(this);
+            DHuman dHuman = new DHuman();
+            dHuman._changedMap = new BitSet(FILED_NUM);
+            dHuman._changedMap.or(this._changedMap);
+            dHuman.id = this.id;
+            dHuman.name = this.name;
+            return dHuman;
         }
 
         public void setId(long id) {
             this.id = id;
-            changedMap.set(0);
+            this._changedMap.set(0);
         }
 
         public void setName(String name) {
             this.name = name;
-            changedMap.set(1);
-        }
-
-        BitSet getChangeMap() {
-            return changedMap;
+            this._changedMap.set(1);
         }
     }
 }

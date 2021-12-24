@@ -110,7 +110,7 @@ public abstract class Port implements Delayed {
         terminal.listenLastOutCall(consumer);
     }
 
-    public String getPortId() {
+    public String getId() {
         return portId;
     }
 

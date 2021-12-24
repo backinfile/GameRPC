@@ -8,7 +8,7 @@ public class CallPoint implements ISerializable {
     public String nodeID;
     public String portID;
 
-    private CallPoint() {
+    public CallPoint() {
     }
 
     public CallPoint(CallPoint callPoint) {

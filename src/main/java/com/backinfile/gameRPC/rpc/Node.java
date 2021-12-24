@@ -1,26 +1,36 @@
 package com.backinfile.gameRPC.rpc;
 
 import com.backinfile.gameRPC.Log;
+import com.backinfile.gameRPC.net.Server;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
 import com.backinfile.gameRPC.support.Utils;
 import com.backinfile.gameRPC.support.func.Action0;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.DelayQueue;
 
+/**
+ * 管理Port，连接远程Node
+ * 一个程序只启一个Node
+ */
 public class Node {
+    public static Node Instance = null;
+
     private final ConcurrentLinkedQueue<Port> portsWaitForRun = new ConcurrentLinkedQueue<>();
     private final DelayQueue<Port> portsWaitForReschedule = new DelayQueue<>();
     private final ConcurrentHashMap<String, Port> allPorts = new ConcurrentHashMap<>();
     private DispatchThreads dispatchThreads;
     private static final int THREAD_NUM = 3;
     private final ConcurrentLinkedQueue<Action0> postActionList = new ConcurrentLinkedQueue<>();
+    private final String nodeId;
 
-    public final String nodeId;
+    private final ArrayList<RemoteNode> remoteNodeList = new ArrayList<>();
 
-    public static Node Instance = null;
+    private Server server = null;
+
 
     public Node(String nodeId) {
         this.nodeId = nodeId;
@@ -31,7 +41,16 @@ public class Node {
         return Instance;
     }
 
-    public void startUp(String name) {
+    public void startServer(int port) {
+        server = new Server(port);
+        server.start();
+    }
+
+    public void connectServer(String ip, int port) {
+    }
+
+    public void startUp() {
+        String name = nodeId;
         Thread.currentThread().setName("Node-" + name);
         dispatchThreads = new DispatchThreads(("Node-" + name) + "DispatchThread", THREAD_NUM, null, this::dispatchRun, null);
         dispatchThreads.start();
@@ -39,15 +58,17 @@ public class Node {
 
 
     public void abort() {
-        Log.core.info("node 中断中.....");
+        Log.core.info("node {} 中断开始.....", nodeId);
         dispatchThreads.abortSync();
-        Log.core.info("node 中断结束");
+        Log.core.info("node {} 中断完成", nodeId);
     }
 
     public void addPort(Port port) {
-        port.setNode(this);
-        portsWaitForRun.add(port);
-        allPorts.put(port.getPortId(), port);
+        post(() -> {
+            port.setNode(this);
+            portsWaitForRun.add(port);
+            allPorts.put(port.getId(), port);
+        });
     }
 
     private void dispatchRun() {
@@ -102,7 +123,7 @@ public class Node {
 
     public static CallPoint getCurCallPoint() {
         CallPoint callPoint = new CallPoint();
-        callPoint.portID = Port.getCurrentPort().getPortId();
+        callPoint.portID = Port.getCurrentPort().getId();
         return callPoint;
     }
 
@@ -111,14 +132,18 @@ public class Node {
     }
 
     public void handleSendCall(Call call) {
-        Port port = getPort(call.to.portID);
-        if (port == null) {
-            Log.Core.error("此call发送到未知port(" + call.to.portID + ")，已忽略", new SysException(""));
-            return;
-        }
+        if (call.to.nodeID.equals(nodeId)) {
+            Port port = getPort(call.to.portID);
+            if (port == null) {
+                Log.core.error("此call发送到未知port(" + call.to.portID + ")，已忽略", new SysException(""));
+                return;
+            }
 
-        port.addCall(serializeCall(call));
-        awake(port);
+            port.addCall(serializeCall(call));
+            awake(port);
+        } else {
+
+        }
     }
 
     private Call serializeCall(Call call) {
@@ -134,5 +159,9 @@ public class Node {
 
     public void post(Action0 action0) {
         postActionList.add(action0);
+    }
+
+    public String getId() {
+        return nodeId;
     }
 }

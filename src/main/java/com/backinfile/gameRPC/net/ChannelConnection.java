@@ -49,7 +49,13 @@ public class ChannelConnection implements Delayed, Connection {
     public GameMessage getGameMessage() {
         if (!inputList.isEmpty()) {
             byte[] data = inputList.poll();
-            GameMessage gameMessage = GameMessage.buildGameMessage(data, 0, data.length);
+            GameMessage gameMessage = null;
+            try {
+                gameMessage = GameMessage.buildGameMessage(data, 0, data.length);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
             return gameMessage;
         }
         return null;

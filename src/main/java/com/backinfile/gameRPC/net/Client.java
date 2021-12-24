@@ -1,6 +1,7 @@
 package com.backinfile.gameRPC.net;
 
 import com.backinfile.gameRPC.Log;
+import com.backinfile.gameRPC.rpc.RemoteNode;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -15,8 +16,10 @@ public class Client extends Thread {
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
     private final String host;
     private final int port;
+    private final RemoteNode.RemoteServer remoteNode;
 
-    public Client(String host, int port) {
+    public Client(RemoteNode.RemoteServer remoteNode, String host, int port) {
+        this.remoteNode = remoteNode;
         this.host = host;
         this.port = port;
     }
@@ -61,24 +64,30 @@ public class Client extends Thread {
     }
 
 
-    private static class ClientHandler extends ChannelInboundHandlerAdapter {
+    private class ClientHandler extends ChannelInboundHandlerAdapter {
+        private ChannelConnection connection = null;
+
 
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
             super.channelActive(ctx);
             Log.client.info("channelActive");
+            connection = new ChannelConnection(0, ctx.channel());
+            remoteNode.setConnection(connection);
         }
 
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
             super.channelInactive(ctx);
             Log.client.info("channelInactive");
+            remoteNode.setConnection(null);
         }
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             super.channelRead(ctx, msg);
             Log.client.info("channelRead");
+            connection.addInput((byte[]) msg);
         }
 
         @Override

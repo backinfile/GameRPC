@@ -5,16 +5,23 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum DSyncStructType {
-    Int("Int", "int", "int32", "Integer"), // int
-    Long("Long", "long", "int64"), // long
-    String("String", "string", "str"), // string
-    Double("Double", "Float", "double", "float"), // float
-    Boolean("Boolean", "boolean", "bool"), // boolean
-    Enum("enum"), UserDefine;
+    Int("I", "Int", "int", "int32", "Integer"), // int
 
+    Long("L", "Long", "long", "int64"), // long
+
+    String("S", "String", "string", "str"), // string
+
+    Double("D", "Double", "Float", "double", "float"), // float
+
+    Boolean("B", "Boolean", "boolean", "bool"), // boolean
+
+    Enum("E", "enum"), UserDefine("U");
+
+    private final String shortName;
     private final List<String> names = new ArrayList<>();
 
-    private DSyncStructType(String... names) {
+    private DSyncStructType(String shortName, String... names) {
+        this.shortName = shortName;
         this.names.addAll(Arrays.asList(names));
     }
 
@@ -27,5 +34,9 @@ public enum DSyncStructType {
             }
         }
         return UserDefine;
+    }
+
+    public String getShortName() {
+        return shortName;
     }
 }

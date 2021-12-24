@@ -1,4 +1,6 @@
 package com.backinfile.gameRPC.test;
 
-public class RoomService {
+public abstract class RoomService {
+
+    public abstract void enter(long humanId);
 }
