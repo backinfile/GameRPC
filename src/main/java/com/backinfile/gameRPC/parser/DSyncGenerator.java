@@ -72,7 +72,6 @@ public class DSyncGenerator {
         rootMap.put("handlerClassName", outClassName);
         rootMap.put("structs", structs);
         rootMap.put("enums", enums);
-        rootMap.put("hasMsg", !result.messageStructs.isEmpty());
         for (var struct : result.userDefineStructMap.values()) {
             if (struct.getType() == DSyncStructType.Enum) {
                 continue;
@@ -84,7 +83,6 @@ public class DSyncGenerator {
             structMap.put("fields", fields);
             structMap.put("comments", struct.getComments());
             structMap.put("hasComment", !struct.getComments().isEmpty());
-            structMap.put("isMsg", result.messageStructs.contains(struct.getTypeName()));
             for (var field : struct.getChildren()) {
                 var fieldMap = new HashMap<String, Object>();
                 fields.add(fieldMap);

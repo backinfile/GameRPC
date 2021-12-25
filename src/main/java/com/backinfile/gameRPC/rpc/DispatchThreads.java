@@ -53,21 +53,21 @@ public class DispatchThreads {
             try {
                 start.invoke();
             } catch (Exception e) {
-                Log.core.error(e, "线程运行start出错");
+                Log.core.error("线程运行start出错", e);
             }
         }
         while (!threadAbort) {
             try {
                 run.invoke();
             } catch (Exception e) {
-                Log.core.error(e, "线程运行run出错");
+                Log.core.error("线程运行run出错", e);
             }
         }
         if (dispose != null) {
             try {
                 dispose.invoke();
             } catch (Exception e) {
-                Log.core.error(e, "线程运行dispose出错");
+                Log.core.error("线程运行dispose出错", e);
             }
         }
         abortedNum.incrementAndGet();

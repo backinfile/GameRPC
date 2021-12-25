@@ -1,8 +1,8 @@
 package com.backinfile.gameRPC.support.timer;
 
+import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.support.func.Action0;
 import com.backinfile.gameRPC.support.func.Function0;
-import com.backinfile.gameRPC.support.log.UtilLog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,7 +62,7 @@ public class TimerQueue {
                 try {
                     timeEvent.action.invoke();
                 } catch (Exception e) {
-                    UtilLog.core.error("error in timeQueue", e);
+                    Log.core.error("error in timeQueue", e);
                 }
                 if (!timeEvent.timer.isRunning()) {
                     timers.remove(id);

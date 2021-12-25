@@ -15,6 +15,7 @@ public class RoomServiceProxy {
             throw new SysException("rpc only be called in port thread");
         }
         CallPoint from = new CallPoint(localPort.getNode().getId(), localPort.getId());
+        return null;
     }
 
     public static class EnterFuture {
