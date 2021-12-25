@@ -24,31 +24,7 @@ public class DSyncVariable {
         if (isArray) {
             return "List<" + getLargeTypeName() + ">";
         }
-        String typeName = "";
-        switch (type) {
-            case Boolean:
-                typeName = "boolean";
-                break;
-            case Double:
-                typeName = "double";
-                break;
-            case Int:
-                typeName = "int";
-                break;
-            case Long:
-                typeName = "long";
-                break;
-            case String:
-                typeName = "String";
-                break;
-            case Enum:
-            case UserDefine:
-                typeName = this.typeName;
-                break;
-            default:
-                break;
-        }
-        return typeName;
+        return getSingleTypeName();
     }
 
     public String getSingleTypeName() {
@@ -143,7 +119,6 @@ public class DSyncVariable {
             case Boolean:
                 return "false";
             case Int:
-                return "0";
             case Long:
                 return "0";
             case Double:

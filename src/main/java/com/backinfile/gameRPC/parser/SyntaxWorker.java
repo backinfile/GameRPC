@@ -73,7 +73,7 @@ public class SyntaxWorker {
     private void parseProperty() {
         var nameToken = match(TokenType.Name);
         match(TokenType.Assign);
-        var strToken = match(TokenType.Name);
+        var strToken = match(TokenType.Str);
         result.properties.put(nameToken.value, strToken.value);
     }
 

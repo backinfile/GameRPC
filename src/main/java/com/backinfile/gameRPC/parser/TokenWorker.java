@@ -1,5 +1,8 @@
 package com.backinfile.gameRPC.parser;
 
+import com.backinfile.gameRPC.Log;
+import com.backinfile.gameRPC.support.Utils;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,12 +10,13 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TokenWorker {
     private int lineno = 0;
     private final List<String> content = new ArrayList<>();
     private final List<Token> tokenCollection = new ArrayList<>();
-    private final List<Token> tokenCollectionCache = new ArrayList<>();
     private final Result result = new Result();
 
     private TokenWorker(List<String> content) {
@@ -49,73 +53,36 @@ public class TokenWorker {
         result.tokens.addAll(tokenCollection);
     }
 
-    private static enum ParseMode {
-        None, Name, Comment, Str,
-    }
-
     private void parseLine() {
-        clearTokenCache();
-        int lineIndex = -1;
         String str = content.get(lineno - 1);
-        ParseMode mode = ParseMode.None;
-        int modeStartIndex = -1;
-        while (lineIndex < str.length() - 1) {
-            lineIndex++;
+        int lineIndex = 0;
+        LINE:
+        while (lineIndex < str.length()) {
             char character = str.charAt(lineIndex);
-            switch (mode) {
-                case None: {
-                    if (character == ' ' || character == '\t') {
-                        // pass
-                    } else if (Character.isLetter(character)) {
-                        mode = ParseMode.Name;
-                        modeStartIndex = lineIndex;
-                    } else if (character == '/') {
-                        mode = ParseMode.Comment;
-                        modeStartIndex = lineIndex;
-                        break;
-                    } else if (character == '[') {
-                        pushToken(TokenType.LSquareBracket);
-                    } else if (character == ']') {
-                        pushToken(TokenType.RSquareBracket);
-                    } else if (character == '{') {
-                        pushToken(TokenType.LBrace);
-                    } else if (character == '}') {
-                        pushToken(TokenType.RBrace);
-                    } else if (character == ';') {
-                        pushToken(TokenType.Semicolon);
-                    } else if (character == ',') {
-                        pushToken(TokenType.Comma);
-                    } else if (character == '=') {
-                        pushToken(TokenType.Assign);
-                    }
-                    break;
-                }
-                case Name: {
-                    if (Character.isLetterOrDigit(character)) {
-                        // pass
-                    } else {
-                        pushToken(TokenType.Name, str.substring(modeStartIndex, lineIndex));
-                        lineIndex--;
-                        mode = ParseMode.None;
-                        modeStartIndex = -1;
-                    }
-                    break;
-                }
-                default:
-                    break;
+            if (character == ' ' || character == '\t' || character == '\r' || character == '\n') {
+                lineIndex++;
+                continue;
             }
-        }
-        if (mode == ParseMode.Comment) {
-            int startIndex = modeStartIndex + 2;
-            int endIndex = str.length();
-            if (endIndex > startIndex) {
-                String comment = str.substring(startIndex, endIndex).trim();
-                if (!comment.isEmpty()) {
-                    pushToken(TokenType.Comment, comment);
+            String input = str.substring(lineIndex);
+            for (TokenType tokenType : TokenType.values()) {
+                for (Pattern pattern : tokenType.getPatterns()) {
+                    Matcher matcher = pattern.matcher(input);
+                    if (matcher.find()) {
+                        Log.core.info("match type:{} {}->{}, content:{}", tokenType, input.substring(matcher.start(), matcher.end()), matcher.start(), matcher.end());
+                        lineIndex += matcher.end() - matcher.start();
+                        if (matcher.groupCount() > 0) {
+                            pushToken(tokenType, input.substring(matcher.start(1), matcher.end(1)));
+                        } else {
+                            pushToken(tokenType, "");
+                        }
+                        continue LINE;
+                    }
                 }
             }
+            result.hasError = true;
+            result.errorStr = Utils.format("不能识别的token, 第{}行，第{}列", lineno, lineIndex);
+            return;
         }
-        flushToken();
     }
 
     private void pushToken(TokenType type) {
@@ -127,15 +94,7 @@ public class TokenWorker {
         token.type = type;
         token.lineno = lineno;
         token.value = value;
-        tokenCollectionCache.add(token);
-    }
-
-    private void flushToken() {
-        tokenCollection.addAll(tokenCollectionCache);
-    }
-
-    private void clearTokenCache() {
-        tokenCollectionCache.clear();
+        tokenCollection.add(token);
     }
 
     @SuppressWarnings("unused")

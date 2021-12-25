@@ -1,4 +1,18 @@
 
+java_package="com.backinfile.gameRPC.struct"
+
+// 用于验证Node身份
 struct DNodeVerify {
-    String token;
+    String token; // player token
+    long[] idList;
+}
+
+struct DHuman {
+    DProp[] props;
+    DProp singleProp;
+}
+
+struct DProp {
+    String propName;
+    float propValue;
 }

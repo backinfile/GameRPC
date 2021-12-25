@@ -3,17 +3,30 @@ package ${packagePath};
 import com.backinfile.gameRPC.DSyncBase;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
+import com.backinfile.gameRPC.gen.GameRPCGenFile;
 
-import java.util.BitSet;
-import java.util.Objects;
+import java.util.*;
 
+<#if hasComment>
+/**
+<#list comments as comment>
+ * ${comment}
+</#list>
+ */
+</#if>
+@GameRPCGenFile
 public class ${structType} extends DSyncBase {
     public static final String TYPE_NAME = ${structType}.class.getSimpleName();
     public static final int TYPE_ID = Objects.hash(${structType}.class.getSimpleName());
     public static int FIELD_NUM = ${fields?size};
 
-    private long id;
-    private String name;
+<#list fields as field>
+<#if field.hasComment>
+	/** ${field.comment} */
+</#if>
+	private ${field.typeName} ${field.name};
+
+</#list>
 
     ${structType}() {
     }
@@ -22,60 +35,59 @@ public class ${structType} extends DSyncBase {
         return new ${structType}.Builder();
     }
 
-    public boolean hasId() {
-        return _changedMap.get(0);
+<#list fields as field>
+    public ${field.typeName} get${field.largeName}() {
+        return ${field.name};
     }
 
-    public long getId() {
-        return id;
+    public boolean has${field.largeName}() {
+        return _changedMap.get(${field.index});
     }
 
-    public boolean hasName() {
-        return _changedMap.get(1);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-
+</#list>
     @Override
     public void writeTo(OutputStream out) {
-        out.write(id);
-        out.write(name);
+<#list fields as field>
+        out.write(${field.name});
+</#list>
     }
 
     @Override
     public void readFrom(InputStream in) {
-        id = in.read();
-        name = in.read();
+<#list fields as field>
+        ${field.name} = in.read();
+</#list>
     }
 
     public static class Builder extends DSyncBase.Builder {
-        private long id = 0;
-        private String name = null;
+<#list fields as field>
+<#if field.hasComment>
+	    /** ${field.comment} */
+</#if>
+	    private ${field.typeName} ${field.name};
+
+</#list>
 
         private Builder() {
             this._changedMap = new BitSet(FIELD_NUM);
         }
 
-        public DHuman build() {
+        public ${structType} build() {
             ${structType} ${structVarName} = new ${structType}();
             ${structVarName}._changedMap = new BitSet(FIELD_NUM);
             ${structVarName}._changedMap.or(this._changedMap);
-            ${structVarName}.id = this.id;
-            ${structVarName}.name = this.name;
+<#list fields as field>
+            ${structVarName}.${field.name} = this.${field.name};
+</#list>
             return ${structVarName};
         }
 
-        public void setId(long id) {
-            this.id = id;
-            this._changedMap.set(0);
+<#list fields as field>
+        public void set${field.largeName}(${field.typeName} ${field.name}) {
+            this.${field.name} = ${field.name};
+            this._changedMap.set(${field.index});
         }
 
-        public void setName(String name) {
-            this.name = name;
-            this._changedMap.set(1);
-        }
+</#list>
     }
 }
