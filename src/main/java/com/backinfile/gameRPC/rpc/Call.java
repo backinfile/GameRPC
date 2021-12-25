@@ -3,9 +3,9 @@ package com.backinfile.gameRPC.rpc;
 import com.backinfile.gameRPC.serialize.ISerializable;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
-import com.backinfile.gameRPC.support.Utils;
 
-import static com.backinfile.gameRPC.rpc.ConstRPC.*;
+import static com.backinfile.gameRPC.rpc.ConstRPC.RPC_TYPE_CALL;
+import static com.backinfile.gameRPC.rpc.ConstRPC.RPC_TYPE_CALL_RETURN;
 
 public class Call implements ISerializable {
     public long id;
@@ -21,9 +21,9 @@ public class Call implements ISerializable {
     public Call() {
     }
 
-    public static Call newCall(CallPoint from, CallPoint to, int method, Object[] args) {
+    public static Call newCall(long id, CallPoint from, CallPoint to, int method, Object[] args) {
         Call call = new Call();
-        call.id = Utils.applyId();
+        call.id = id;
         call.from = from;
         call.to = to;
         call.args = args;
@@ -48,7 +48,7 @@ public class Call implements ISerializable {
         callReturn.to = from;
         callReturn.id = id;
         callReturn.code = code;
-        callReturn.type = RPC_TYPE_CALL_RETURN_ERROR;
+        callReturn.type = RPC_TYPE_CALL_RETURN;
         return callReturn;
     }
 

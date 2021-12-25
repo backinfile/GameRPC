@@ -9,4 +9,6 @@ public enum TokenType {
     Semicolon, // 分号
     Comment, // 注释
     Comma, // 逗号
+    Assign, // 等于号
+    Str, // 字符串
 }

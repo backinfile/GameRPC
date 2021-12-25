@@ -9,7 +9,7 @@ public interface Connection extends Delayed {
 
     public boolean isAlive();
 
-    public GameMessage getGameMessage();
+    public GameMessage pollGameMessage();
 
     public void sendGameMessage(GameMessage gameMessage);
 

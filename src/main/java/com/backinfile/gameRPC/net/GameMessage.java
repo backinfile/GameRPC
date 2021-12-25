@@ -7,15 +7,22 @@ import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
 import com.backinfile.gameRPC.support.Utils;
 
+/**
+ * 用于包装socket中传递的消息
+ */
 public class GameMessage {
     private static final int CHECK_CODE = Utils.getHashCode("call");
     private Call call;
 
-    public GameMessage(Call call) {
+    private GameMessage(Call call) {
         this.call = call;
     }
 
-    public static GameMessage buildGameMessage(byte[] bytes, int offset, int len) {
+    public static GameMessage build(Call call) {
+        return new GameMessage(call);
+    }
+
+    public static GameMessage build(byte[] bytes, int offset, int len) {
         if (len < 8 || bytes.length < 8)
             return null;
         int byteSize = Utils.bytes2Int(bytes, 0);

@@ -43,7 +43,7 @@ public abstract class Port implements Delayed {
 
     public void setNode(Node node) {
         this.node = node;
-        terminal = new Terminal(this, node);
+        terminal = new Terminal(node, this);
     }
 
     public abstract void startup();
@@ -64,10 +64,7 @@ public abstract class Port implements Delayed {
         this.time = newTime;
         // 设置当前port
         curPort.set(this);
-        // 检查有没有失效的listen
-        terminal.checkCallReturnTimeout();
-        // 处理rpc
-        terminal.executeInCall();
+        terminal.pulse();
         // 心跳
         casePulseBefore();
         casePulse();

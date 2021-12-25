@@ -1,5 +1,6 @@
 package com.backinfile.gameRPC.rpc;
 
+import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.serialize.ISerializable;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
@@ -27,11 +28,11 @@ public class Params implements ISerializable {
                 if (key instanceof String) {
                     setValue((String) key, value);
                 } else {
-                    Log.Game.warn("ignoring param's arg:{0} {1}", key, value);
+                    Log.core.warn("ignoring param's arg:{} {}", key, value);
                 }
             }
         } else {
-            Log.Core.error("param 参数为奇数", new SysException());
+            Log.core.error("param 参数为奇数", new SysException());
         }
     }
 

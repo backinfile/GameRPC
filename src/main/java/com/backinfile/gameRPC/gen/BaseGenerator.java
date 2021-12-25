@@ -10,5 +10,6 @@ public class BaseGenerator {
 
     private static void genStruct() {
 
+        
     }
 }

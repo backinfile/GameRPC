@@ -49,10 +49,14 @@ public class Node {
         });
     }
 
+    /**
+     * 连接服务器
+     */
     public void connectServer(String ip, int port) {
         post(() -> {
             RemoteNode.RemoteServer remoteServer = new RemoteNode.RemoteServer(ip, port);
             remoteNodeList.add(remoteServer);
+            remoteServer.start();
         });
     }
 
@@ -141,13 +145,6 @@ public class Node {
         return System.currentTimeMillis();
     }
 
-    public static CallPoint getCurCallPoint() {
-        CallPoint callPoint = new CallPoint();
-        callPoint.nodeID = Node.Instance.getId();
-        callPoint.portID = Port.getCurrentPort().getId();
-        return callPoint;
-    }
-
     public Port getPort(String portId) {
         return allPorts.get(portId);
     }
@@ -156,7 +153,7 @@ public class Node {
      * 转发所有经由此node的call
      * 如果call发送至此node，直接推送到相应port中；
      * 如果发送至其他node，通过remoteNode推送。
-     * 线程安全
+     * 此方法线程安全
      */
     public void handleCall(Call call) {
         if (call.to.nodeID.equals(nodeId)) {
@@ -181,6 +178,9 @@ public class Node {
         }
     }
 
+    /**
+     * 序列化一遍call，避免在不同线程修改相同的对象
+     */
     private Call serializeCall(Call call) {
         OutputStream outputStream = new OutputStream();
         outputStream.write(call);
@@ -192,6 +192,9 @@ public class Node {
         return newCall;
     }
 
+    /**
+     * 在node线程中执行action
+     */
     public void post(Action0 action0) {
         postActionList.add(action0);
     }

@@ -8,9 +8,18 @@ import java.util.List;
 
 public class WaitResult {
     public long expireTime = 0;
-    public List<Action1<IResult>> callbackHandlers = new ArrayList<>();
-    public List<Action1<IResult>> errorHandlers = new ArrayList<>();
-    public Params contexts = new Params();
+    public List<Callback> callbackHandlers = new ArrayList<>();
+
+    public static class Callback {
+        public Action1<IResult> action;
+        public Params contexts;
+    }
+
+    public void addCallback(Action1<IResult> action, Object... contexts) {
+        Callback callback = new Callback();
+        callback.action = action;
+        callback.contexts = new Params(contexts);
+    }
 
     public boolean isExpire() {
         return expireTime > 0 && expireTime < Time2.getCurMillis();

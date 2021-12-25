@@ -2,23 +2,25 @@ package com.backinfile.gameRPC.parser;
 
 import com.backinfile.gameRPC.Log;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SyntaxWorker {
-    private final Map<String, DSyncStruct> userDefineStructMap = new HashMap<String, DSyncStruct>();
-    private final List<Token> tokens = new ArrayList<Token>();
-    private static final String DS_MSG = "message";
+    private final List<Token> tokens = new ArrayList<>();
     private static final String DS_STRUCT = "struct";
     private static final String DS_ENUM = "enum";
-    private final Set<String> messageStructs = new HashSet<>();
+    private static final String DS_SERV = "service";
     private final List<Token> lastCommentTokens = new ArrayList<>();
+    private final Result result = new Result();
 
     public static class Result {
         public boolean hasError = false;
         public String errorStr = "";
-        public Map<String, DSyncStruct> userDefineStructMap = new HashMap<String, DSyncStruct>();
-        public Set<String> messageStructs = new HashSet<String>();
+        public Map<String, DSyncStruct> userDefineStructMap = new HashMap<>();
+        public Map<String, String> properties = new HashMap<>();
     }
 
     private int index = 0;
@@ -27,27 +29,15 @@ public class SyntaxWorker {
     }
 
     public static Result parse(List<Token> tokens) {
-        Result result = new Result();
+        SyntaxWorker worker = new SyntaxWorker();
         try {
-            SyntaxWorker worker = new SyntaxWorker();
             worker.tokens.addAll(tokens);
             worker.parseRoot();
-            result.userDefineStructMap.putAll(worker.getUserDefineStructMap());
-            result.messageStructs.addAll(worker.getMessageStructs());
         } catch (Exception e) {
-            result.hasError = true;
-            result.errorStr = e.getMessage();
+            worker.result.hasError = true;
+            worker.result.errorStr = e.getMessage();
         }
-        return result;
-
-    }
-
-    public Map<String, DSyncStruct> getUserDefineStructMap() {
-        return userDefineStructMap;
-    }
-
-    public Set<String> getMessageStructs() {
-        return messageStructs;
+        return worker.result;
     }
 
     private void parseRoot() {
@@ -67,21 +57,28 @@ public class SyntaxWorker {
                 continue;
             }
 
-            if (test(TokenType.Name, DS_MSG)) {
-                next();
-                parseStruct(true);
-            } else if (test(TokenType.Name, DS_STRUCT)) {
-                next();
-                parseStruct(false);
-            } else if (test(TokenType.Name, DS_ENUM)) {
-                next();
+            if (test(DS_STRUCT)) {
+                parseStruct();
+            } else if (test(DS_ENUM)) {
                 parseEnum();
+            } else if (test(DS_SERV)) {
+                // TODO
+            } else { // 不是枚举不是结构体， 是自定义变量
+                parseProperty();
             }
         }
 
     }
 
-    private void parseStruct(boolean isMsg) {
+    private void parseProperty() {
+        var nameToken = match(TokenType.Name);
+        match(TokenType.Assign);
+        var strToken = match(TokenType.Name);
+        result.properties.put(nameToken.value, strToken.value);
+    }
+
+    private void parseStruct() {
+        match(DS_STRUCT);
         var nameToken = match(TokenType.Name);
         String typeName = nameToken.value;
         match(TokenType.LBrace);
@@ -95,14 +92,11 @@ public class SyntaxWorker {
         }
         match(TokenType.RBrace);
 
-        if (userDefineStructMap.containsKey(typeName)) {
+        if (result.userDefineStructMap.containsKey(typeName)) {
             Log.parser.warn("duplicate struct:{}!", typeName);
         }
 
-        userDefineStructMap.put(typeName, struct);
-        if (isMsg) {
-            messageStructs.add(typeName);
-        }
+        result.userDefineStructMap.put(typeName, struct);
     }
 
     private void parseFiled(DSyncStruct struct) {
@@ -132,6 +126,7 @@ public class SyntaxWorker {
     }
 
     private void parseEnum() {
+        match(DS_ENUM);
         var nameToken = match(TokenType.Name);
         String typeName = nameToken.value;
         match(TokenType.LBrace);
@@ -146,7 +141,7 @@ public class SyntaxWorker {
             defaultValue = false;
         }
         match(TokenType.RBrace);
-        userDefineStructMap.put(typeName, struct);
+        result.userDefineStructMap.put(typeName, struct);
     }
 
     private void parseEnumField(DSyncStruct struct, boolean defaultValue) {
@@ -187,18 +182,25 @@ public class SyntaxWorker {
         return getToken().type == tokenType;
     }
 
-    private boolean test(TokenType tokenType, String name) {
+    private boolean test(String name) {
         if (index >= tokens.size()) {
             return false;
         }
         Token token = getToken();
-        return token.type == tokenType && token.value.equals(name);
+        return token.type == TokenType.Name && token.value.equals(name);
+    }
+
+    private void match(String name) {
+        var token = match(TokenType.Name);
+        if (!name.equals(token.value)) {
+            throw new ParserException("语法错误 不能匹配" + name + " 第" + token.lineno + "行。");
+        }
     }
 
     private Token match(TokenType... tokenTypes) {
         if (index >= tokens.size()) {
             var token = tokens.get(tokens.size() - 1);
-            throw new ParserException("语法错误 不能匹配" + tokenTypes[0].name() + " 第" + token.lineno + "行。");
+            TOKEN_MISS_MATCH(tokenTypes[0], token.lineno);
         }
         boolean match = false;
         var token = tokens.get(index);
@@ -209,7 +211,7 @@ public class SyntaxWorker {
             }
         }
         if (!match) {
-            throw new ParserException("语法错误 不能匹配" + tokenTypes[0].name() + " 第" + token.lineno + "行。");
+            TOKEN_MISS_MATCH(tokenTypes[0], token.lineno);
         }
         index++;
         return token;
@@ -218,13 +220,17 @@ public class SyntaxWorker {
     private Token match(TokenType tokenType) {
         if (index >= tokens.size()) {
             var token = tokens.get(tokens.size() - 1);
-            throw new ParserException("语法错误 不能匹配" + tokenType.name() + " 第" + token.lineno + "行。");
+            TOKEN_MISS_MATCH(tokenType, token.lineno);
         }
         var token = tokens.get(index);
         if (token.type != tokenType) {
-            throw new ParserException("语法错误 不能匹配" + tokenType.name() + " 第" + token.lineno + "行。");
+            TOKEN_MISS_MATCH(tokenType, token.lineno);
         }
         index++;
         return token;
+    }
+
+    private void TOKEN_MISS_MATCH(TokenType tokenType, int lineno) {
+        throw new ParserException("语法错误 不能匹配" + tokenType.name() + " 第" + lineno + "行。");
     }
 }
