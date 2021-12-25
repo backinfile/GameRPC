@@ -181,7 +181,7 @@ public class Node {
     /**
      * 序列化一遍call，避免在不同线程修改相同的对象
      */
-    private Call serializeCall(Call call) {
+    public static Call serializeCall(Call call) {
         OutputStream outputStream = new OutputStream();
         outputStream.write(call);
         byte[] bytes = outputStream.getBytes();

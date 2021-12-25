@@ -4,8 +4,8 @@ import com.backinfile.gameRPC.DSyncBase;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
 import com.backinfile.gameRPC.gen.GameRPCGenFile;
-import java.util.BitSet;
-import java.util.Objects;
+
+import java.util.*;
 
 @GameRPCGenFile
 public class DHuman extends DSyncBase {
@@ -25,12 +25,16 @@ public class DHuman extends DSyncBase {
         return new DHuman.Builder();
     }
 
-    public List<DProp> getProps() {
+    public int getPropsSize() {
+        return props.size();
+    }
+
+    public List<DProp> getPropsList() {
         return props;
     }
 
     public boolean hasProps() {
-        return _changedMap.get(0);
+        return _valueMap.get(0);
     }
 
     public DProp getSingleProp() {
@@ -38,7 +42,7 @@ public class DHuman extends DSyncBase {
     }
 
     public boolean hasSingleProp() {
-        return _changedMap.get(1);
+        return _valueMap.get(1);
     }
 
     @Override
@@ -49,7 +53,7 @@ public class DHuman extends DSyncBase {
 
     @Override
     public void readFrom(InputStream in) {
-        props = in.read();
+        props = Collections.unmodifiableList(in.read());
         singleProp = in.read();
     }
 
@@ -60,26 +64,31 @@ public class DHuman extends DSyncBase {
 
 
         private Builder() {
-            this._changedMap = new BitSet(FIELD_NUM);
+            this._valueMap = new BitSet(FIELD_NUM);
         }
 
         public DHuman build() {
             DHuman _DHuman = new DHuman();
-            _DHuman._changedMap = new BitSet(FIELD_NUM);
-            _DHuman._changedMap.or(this._changedMap);
-            _DHuman.props = this.props;
+            _DHuman._valueMap = new BitSet(FIELD_NUM);
+            _DHuman._valueMap.or(this._valueMap);
+            _DHuman.props = List.copyOf(this.props);
             _DHuman.singleProp = this.singleProp;
             return _DHuman;
         }
 
-        public void setProps(List<DProp> props) {
-            this.props = props;
-            this._changedMap.set(0);
+        public void addAllProps(List<DProp> props) {
+            this.props.addAll(props);
+            this._valueMap.set(0);
+        }
+
+        public void addProps(DProp props) {
+            this.props.add(props);
+            this._valueMap.set(0);
         }
 
         public void setSingleProp(DProp singleProp) {
             this.singleProp = singleProp;
-            this._changedMap.set(1);
+            this._valueMap.set(1);
         }
 
     }

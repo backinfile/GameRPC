@@ -1,13 +1,11 @@
 package com.backinfile.gameRPC.struct;
 
 import com.backinfile.gameRPC.DSyncBase;
-import com.backinfile.gameRPC.gen.GameRPCGenFile;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
+import com.backinfile.gameRPC.gen.GameRPCGenFile;
 
-import java.util.BitSet;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 用于验证Node身份
@@ -18,12 +16,10 @@ public class DNodeVerify extends DSyncBase {
     public static final int TYPE_ID = Objects.hash(DNodeVerify.class.getSimpleName());
     public static int FIELD_NUM = 2;
 
-    /**
-     * player token
-     */
-    private String token;
+	/** player token */
+	private String token;
 
-    private List<Long> idList;
+	private List<Long> idList;
 
 
     DNodeVerify() {
@@ -38,15 +34,19 @@ public class DNodeVerify extends DSyncBase {
     }
 
     public boolean hasToken() {
-        return _changedMap.get(0);
+        return _valueMap.get(0);
     }
 
-    public List<Long> getIdList() {
+    public int getIdListSize() {
+        return idList.size();
+    }
+
+    public List<Long> getIdListList() {
         return idList;
     }
 
     public boolean hasIdList() {
-        return _changedMap.get(1);
+        return _valueMap.get(1);
     }
 
     @Override
@@ -58,26 +58,24 @@ public class DNodeVerify extends DSyncBase {
     @Override
     public void readFrom(InputStream in) {
         token = in.read();
-        idList = in.read();
+        idList = Collections.unmodifiableList(in.read());
     }
 
     public static class Builder extends DSyncBase.Builder {
-        /**
-         * player token
-         */
-        private String token;
+	    /** player token */
+	    private String token;
 
-        private List<Long> idList;
+	    private List<Long> idList;
 
 
         private Builder() {
-            this._changedMap = new BitSet(FIELD_NUM);
+            this._valueMap = new BitSet(FIELD_NUM);
         }
 
         public DNodeVerify build() {
             DNodeVerify _DNodeVerify = new DNodeVerify();
-            _DNodeVerify._changedMap = new BitSet(FIELD_NUM);
-            _DNodeVerify._changedMap.or(this._changedMap);
+            _DNodeVerify._valueMap = new BitSet(FIELD_NUM);
+            _DNodeVerify._valueMap.or(this._valueMap);
             _DNodeVerify.token = this.token;
             _DNodeVerify.idList = List.copyOf(this.idList);
             return _DNodeVerify;
@@ -85,12 +83,17 @@ public class DNodeVerify extends DSyncBase {
 
         public void setToken(String token) {
             this.token = token;
-            this._changedMap.set(0);
+            this._valueMap.set(0);
         }
 
-        public void setIdList(List<Long> idList) {
-            this.idList = idList;
-            this._changedMap.set(1);
+        public void addAllIdList(List<Long> idList) {
+            this.idList.addAll(idList);
+            this._valueMap.set(1);
+        }
+
+        public void addIdList(long idList) {
+            this.idList.add(idList);
+            this._valueMap.set(1);
         }
 
     }

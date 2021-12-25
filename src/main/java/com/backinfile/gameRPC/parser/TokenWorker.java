@@ -68,7 +68,7 @@ public class TokenWorker {
                 for (Pattern pattern : tokenType.getPatterns()) {
                     Matcher matcher = pattern.matcher(input);
                     if (matcher.find()) {
-                        Log.core.info("match type:{} {}->{}, content:{}", tokenType, input.substring(matcher.start(), matcher.end()), matcher.start(), matcher.end());
+                        Log.core.info("match type:{} {}->{}, content:{}", tokenType, matcher.start(), matcher.end(), input.substring(matcher.start(), matcher.end()));
                         lineIndex += matcher.end() - matcher.start();
                         if (matcher.groupCount() > 0) {
                             pushToken(tokenType, input.substring(matcher.start(1), matcher.end(1)));

@@ -25,7 +25,6 @@ public class ${structType} extends DSyncBase {
 	/** ${field.comment} */
 </#if>
 	private ${field.typeName} ${field.name};
-
 </#list>
 
     ${structType}() {
@@ -36,13 +35,27 @@ public class ${structType} extends DSyncBase {
     }
 
 <#list fields as field>
+<#if field.array>
+    public int get${field.largeName}Size() {
+        return ${field.name}.size();
+    }
+
+    public ${field.typeName} get${field.largeName}List() {
+        return ${field.name};
+    }
+
+    public boolean has${field.largeName}() {
+        return _valueMap.get(${field.index});
+    }
+<#else>
     public ${field.typeName} get${field.largeName}() {
         return ${field.name};
     }
 
     public boolean has${field.largeName}() {
-        return _changedMap.get(${field.index});
+        return _valueMap.get(${field.index});
     }
+</#if>
 
 </#list>
     @Override
@@ -55,7 +68,11 @@ public class ${structType} extends DSyncBase {
     @Override
     public void readFrom(InputStream in) {
 <#list fields as field>
+<#if field.array>
+        ${field.name} = Collections.unmodifiableList(in.read());
+<#else>
         ${field.name} = in.read();
+</#if>
 </#list>
     }
 
@@ -65,28 +82,43 @@ public class ${structType} extends DSyncBase {
 	    /** ${field.comment} */
 </#if>
 	    private ${field.typeName} ${field.name};
-
 </#list>
 
         private Builder() {
-            this._changedMap = new BitSet(FIELD_NUM);
+            this._valueMap = new BitSet(FIELD_NUM);
         }
 
         public ${structType} build() {
             ${structType} ${structVarName} = new ${structType}();
-            ${structVarName}._changedMap = new BitSet(FIELD_NUM);
-            ${structVarName}._changedMap.or(this._changedMap);
+            ${structVarName}._valueMap = new BitSet(FIELD_NUM);
+            ${structVarName}._valueMap.or(this._valueMap);
 <#list fields as field>
+<#if field.array>
+            ${structVarName}.${field.name} = List.copyOf(this.${field.name});
+<#else>
             ${structVarName}.${field.name} = this.${field.name};
+</#if>
 </#list>
             return ${structVarName};
         }
 
 <#list fields as field>
+<#if field.array>
+        public void addAll${field.largeName}(${field.typeName} ${field.name}) {
+            this.${field.name}.addAll(${field.name});
+            this._valueMap.set(${field.index});
+        }
+
+        public void add${field.largeName}(${field.singleTypeName} ${field.name}) {
+            this.${field.name}.add(${field.name});
+            this._valueMap.set(${field.index});
+        }
+<#else>
         public void set${field.largeName}(${field.typeName} ${field.name}) {
             this.${field.name} = ${field.name};
-            this._changedMap.set(${field.index});
+            this._valueMap.set(${field.index});
         }
+</#if>
 
 </#list>
     }
