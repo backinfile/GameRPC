@@ -1,5 +1,5 @@
 
-java_package="com.backinfile.gameRPC.struct"
+java_package="com.backinfile.gameRPC.gen.struct"
 
 // 用于验证Node身份
 struct DNodeVerify {

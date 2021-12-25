@@ -1,10 +1,12 @@
 package com.backinfile.gameRPC.test;
 
 
+import com.backinfile.gameRPC.gen.BaseGenerator;
+import com.backinfile.gameRPC.gen.struct.DNodeVerify;
 import com.backinfile.gameRPC.rpc.Call;
 import com.backinfile.gameRPC.rpc.CallPoint;
 import com.backinfile.gameRPC.rpc.Node;
-import com.backinfile.gameRPC.struct.DNodeVerify;
+import com.backinfile.gameRPC.serialize.SerializableManager;
 
 public class JUnitTest {
 
@@ -13,6 +15,7 @@ public class JUnitTest {
     }
 
     public static void testDSyncSerialize() {
+        SerializableManager.registerAll(BaseGenerator.class.getClassLoader(), JUnitTest.class.getClassLoader());
         DNodeVerify.Builder builder = DNodeVerify.newBuilder();
         builder.addIdList(1234L);
         builder.setToken("playerToken");
@@ -23,6 +26,7 @@ public class JUnitTest {
 
         Call newCall = Node.serializeCall(call);
 
+        System.out.println();
         assert true;
     }
 }

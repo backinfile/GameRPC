@@ -82,7 +82,7 @@ public class BaseGenerator {
                 }
             }
             FreeMarkerManager.formatFileInProj("templates", "base.ftl",
-                    rootMap, "src/main/gen/com/backinfile/gameRPC/struct", struct.getTypeName() + ".java");
+                    rootMap, "src/main/java/com/backinfile/gameRPC/gen/struct", struct.getTypeName() + ".java");
         }
 
     }

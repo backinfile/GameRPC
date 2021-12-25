@@ -1,4 +1,4 @@
-package com.backinfile.gameRPC.struct;
+package com.backinfile.gameRPC.gen.struct;
 
 import com.backinfile.gameRPC.DSyncBase;
 import com.backinfile.gameRPC.serialize.InputStream;
@@ -14,9 +14,7 @@ public class DProp extends DSyncBase {
     public static int FIELD_NUM = 2;
 
 	private String propName;
-
 	private double propValue;
-
 
     DProp() {
     }
@@ -54,10 +52,8 @@ public class DProp extends DSyncBase {
     }
 
     public static class Builder extends DSyncBase.Builder {
-	    private String propName;
-
-	    private double propValue;
-
+	    private String propName = "";
+	    private double propValue = 0f;
 
         private Builder() {
             this._valueMap = new BitSet(FIELD_NUM);

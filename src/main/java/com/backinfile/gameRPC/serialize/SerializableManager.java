@@ -6,6 +6,7 @@ import com.backinfile.gameRPC.rpc.CallPoint;
 import com.backinfile.gameRPC.rpc.MapResult;
 import com.backinfile.gameRPC.rpc.Params;
 import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -31,12 +32,17 @@ public class SerializableManager {
 
 
     public static void registerAll(ClassLoader... classLoaders) {
-        Reflections reflections = new Reflections(SerializableManager.class.getClassLoader(), classLoaders);
+        Reflections reflections = new Reflections(new SubTypesScanner(false), SerializableManager.class.getClassLoader(), classLoaders);
         registerAllEnum(reflections);
         registerAllSerialize(reflections);
+
+        for (var clazz : reflections.getAllTypes()) {
+            Log.serialize.info("test find {}", clazz);
+        }
     }
 
     private static void registerAllSerialize(Reflections reflections) {
+
         Collection<Class<? extends ISerializable>> classes = reflections.getSubTypesOf(ISerializable.class);
         classes.addAll(registerLocalSerialize());
         for (Class<?> clazz : classes) {
@@ -44,6 +50,7 @@ public class SerializableManager {
                 int id = getCommonSerializeID(clazz);
                 Constructor<?> constructor = clazz.getDeclaredConstructor();
                 idSaves.put(id, constructor);
+                Log.serialize.info("find class:{}", clazz.getSimpleName());
             } catch (Exception e) {
                 Log.serialize.error("可能是ISerializable接口的实现没有空的构造函数", e);
             }

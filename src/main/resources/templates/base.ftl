@@ -81,7 +81,11 @@ public class ${structType} extends DSyncBase {
 <#if field.hasComment>
 	    /** ${field.comment} */
 </#if>
-	    private ${field.typeName} ${field.name};
+<#if field.array>
+	    final private ${field.typeName} ${field.name} = ${field.defaultValue};
+<#else>
+	    private ${field.typeName} ${field.name} = ${field.defaultValue};
+</#if>
 </#list>
 
         private Builder() {

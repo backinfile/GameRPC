@@ -1,4 +1,4 @@
-package com.backinfile.gameRPC.struct;
+package com.backinfile.gameRPC.gen.struct;
 
 import com.backinfile.gameRPC.DSyncBase;
 import com.backinfile.gameRPC.serialize.InputStream;
@@ -18,9 +18,7 @@ public class DNodeVerify extends DSyncBase {
 
 	/** player token */
 	private String token;
-
 	private List<Long> idList;
-
 
     DNodeVerify() {
     }
@@ -63,10 +61,8 @@ public class DNodeVerify extends DSyncBase {
 
     public static class Builder extends DSyncBase.Builder {
 	    /** player token */
-	    private String token;
-
-	    private List<Long> idList;
-
+	    private String token = "";
+	    final private List<Long> idList = new ArrayList<>();
 
         private Builder() {
             this._valueMap = new BitSet(FIELD_NUM);
