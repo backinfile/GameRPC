@@ -1,0 +1,4 @@
+
+struct DNodeVerify {
+    String token;
+}

@@ -8,6 +8,7 @@ import com.backinfile.gameRPC.support.Utils;
 import com.backinfile.gameRPC.support.func.Action0;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.DelayQueue;
@@ -42,17 +43,24 @@ public class Node {
     }
 
     public void startServer(int port) {
-        server = new Server(port);
-        server.start();
+        post(() -> {
+            server = new Server(port);
+            server.start();
+        });
     }
 
     public void connectServer(String ip, int port) {
+        post(() -> {
+            RemoteNode.RemoteServer remoteServer = new RemoteNode.RemoteServer(ip, port);
+            remoteNodeList.add(remoteServer);
+        });
     }
 
     public void startUp() {
         String name = nodeId;
         Thread.currentThread().setName("Node-" + name);
-        dispatchThreads = new DispatchThreads(("Node-" + name) + "DispatchThread", THREAD_NUM, null, this::dispatchRun, null);
+        dispatchThreads = new DispatchThreads(("Node-" + name) + "DispatchThread", THREAD_NUM,
+                null, this::dispatchRun, null);
         dispatchThreads.start();
     }
 
@@ -72,6 +80,7 @@ public class Node {
     }
 
     private void dispatchRun() {
+        // pulse port
         Port port = portsWaitForRun.poll();
         if (port == null) {
             reSchedule(THREAD_NUM);
@@ -79,11 +88,22 @@ public class Node {
             return;
         }
         pulsePort(port);
-        while (postActionList.isEmpty()) {
+
+        // pulse remoteNode
+        for (RemoteNode remoteNode : remoteNodeList) {
+            remoteNode.pulse();
+        }
+
+        // pulse post action
+        while (true) {
+            Action0 action0 = postActionList.poll();
+            if (action0 == null) {
+                break;
+            }
             try {
-                postActionList.poll().invoke();
+                action0.invoke();
             } catch (Exception e) {
-                Log.core.error(e, "error in invoke postAction");
+                Log.core.error("error in invoke postAction", e);
             }
         }
     }
@@ -123,6 +143,7 @@ public class Node {
 
     public static CallPoint getCurCallPoint() {
         CallPoint callPoint = new CallPoint();
+        callPoint.nodeID = Node.Instance.getId();
         callPoint.portID = Port.getCurrentPort().getId();
         return callPoint;
     }
@@ -131,17 +152,31 @@ public class Node {
         return allPorts.get(portId);
     }
 
-    public void handleSendCall(Call call) {
+    /**
+     * 转发所有经由此node的call
+     * 如果call发送至此node，直接推送到相应port中；
+     * 如果发送至其他node，通过remoteNode推送。
+     * 线程安全
+     */
+    public void handleCall(Call call) {
         if (call.to.nodeID.equals(nodeId)) {
             Port port = getPort(call.to.portID);
             if (port == null) {
                 Log.core.error("此call发送到未知port(" + call.to.portID + ")，已忽略", new SysException(""));
                 return;
             }
-
             port.addCall(serializeCall(call));
             awake(port);
         } else {
+            Optional<RemoteNode> optional = remoteNodeList.stream()
+                    .filter(n -> n.getId().equals(call.to.nodeID)).findAny();
+            if (optional.isPresent()) {
+                RemoteNode remoteNode = optional.get();
+                remoteNode.sendMessage(call);
+                Log.core.info("handle call to local node to portId:{}", call.to.portID);
+            } else {
+                Log.core.error("handle call to missing node nodeId:{} portId:{}", call.to.nodeID, call.to.portID);
+            }
 
         }
     }

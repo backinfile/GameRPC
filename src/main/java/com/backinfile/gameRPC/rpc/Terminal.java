@@ -5,7 +5,6 @@ import com.backinfile.gameRPC.support.Time2;
 import com.backinfile.gameRPC.support.func.Action1;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -13,12 +12,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * rpc终端--port
  */
 public class Terminal implements ITerminal {
-    private final ConcurrentLinkedQueue<Call> callCacheList = new ConcurrentLinkedQueue<>();
-    private final HashMap<Long, WaitResult> waitingResponseList = new HashMap<>();
-    private final Queue<Call> calls = new LinkedList<>();
-    private Call lastInCall;
-    private Call lastOutCall;
-    private long call_id_max = 0;
+    private final Queue<Call> callCacheList = new ConcurrentLinkedQueue<>(); // 等待执行的Call队列
+    private final HashMap<Long, WaitResult> waitingResponseList = new HashMap<>(); // 等待远程返回
+
+    private Call lastInCall; // 上一个接受到的call
+    private Call lastOutCall; // 上一个发送出去的call
+    private long call_id_max = 1;
     private final Node mNode;
     private final Port mPort;
 
@@ -30,6 +29,7 @@ public class Terminal implements ITerminal {
         this.mNode = node;
     }
 
+    // 此terminal接受到新call
     @Override
     public void addCall(Call call) {
         callCacheList.add(call);
@@ -44,18 +44,20 @@ public class Terminal implements ITerminal {
         return lastOutCall;
     }
 
+    /**
+     * 由此terminal发送新call到其他terminal，必须在port线程中发送
+     */
     @Override
     public void sendNewCall(CallPoint to, int method, Object[] args) {
         Call call = new Call();
-        call.from = Node.getCurCallPoint();
-        call.to = to;
+        call.from = new CallPoint(mNode.getId(), mPort.getId());
+        call.to = to.copy();
         call.id = call_id_max++;
-        call.expireTime = mNode.getTime() + CALL_EXPIRE_TIME;
         call.method = method;
         call.args = args;
 
         lastOutCall = call;
-        mNode.handleSendCall(call);
+        mNode.handleCall(call);
     }
 
     @Override
@@ -71,13 +73,13 @@ public class Terminal implements ITerminal {
     @Override
     public void returns(Call call, Object... results) {
         Call callReturn = call.newCallReturn(results);
-        mNode.handleSendCall(callReturn);
+        mNode.handleCall(callReturn);
     }
 
     @Override
     public void returnsError(Call call, int errorCode, String error) {
         Call callReturn = call.newErrorReturn(errorCode, error);
-        mNode.handleSendCall(callReturn);
+        mNode.handleCall(callReturn);
     }
 
     @Override
@@ -98,12 +100,7 @@ public class Terminal implements ITerminal {
         }
 
         // 检查返回
-        for (var iter = waitingResponseList.entrySet().iterator(); iter.hasNext(); ) {
-            var pair = iter.next();
-            if (pair.getValue().isExpire()) {
-                iter.remove();
-            }
-        }
+        waitingResponseList.entrySet().removeIf(pair -> pair.getValue().isExpire());
     }
 
     private void flush() {
@@ -189,13 +186,14 @@ public class Terminal implements ITerminal {
         }
         WaitResult waitResult = waitingResponseList.remove(call.id);
         MapResult result = new MapResult(call.args);
-        result.setError(false);
-        result.updateContexts(waitResult.contexts.getValues());
+        // TODO context
+//        result.setError(false);
+//        result.updateContexts(waitResult.contexts.getValues());
         for (var callback : waitResult.callbackHandlers) {
             try {
                 callback.invoke(result);
             } catch (Exception e) {
-                Log.Core.error("run rpc result callbackHandler function error", e);
+                Log.core.error("run rpc result callbackHandler function error", e);
             }
         }
     }
@@ -212,7 +210,7 @@ public class Terminal implements ITerminal {
             try {
                 callback.invoke(result);
             } catch (Exception e) {
-                Log.Core.error("run rpc result errorHandler function error", e);
+                Log.core.error("run rpc result errorHandler function error", e);
             }
         }
     }

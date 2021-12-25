@@ -1,7 +1,4 @@
-package com.backinfile.gameRPC;
-
-import org.msgpack.core.MessageBufferPacker;
-import org.msgpack.core.MessagePack;
+package com.backinfile.gameRPC.gen;
 
 public class Generator {
     public static void main(String[] args) {

@@ -1,7 +1,7 @@
 package com.backinfile.gameRPC.parser;
 
-import com.backinfile.gameRPC.FreeMarkerManager;
 import com.backinfile.gameRPC.Log;
+import com.backinfile.gameRPC.gen.FreeMarkerManager;
 
 import java.io.IOException;
 import java.nio.file.Files;

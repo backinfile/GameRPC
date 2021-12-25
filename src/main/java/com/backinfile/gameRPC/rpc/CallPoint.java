@@ -21,6 +21,10 @@ public class CallPoint implements ISerializable {
         this.portID = portID;
     }
 
+    public CallPoint copy() {
+        return new CallPoint(nodeID, portID);
+    }
+
     @Override
     public void writeTo(OutputStream out) {
         out.write(nodeID);

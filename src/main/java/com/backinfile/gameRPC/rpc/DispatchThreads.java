@@ -43,8 +43,8 @@ public class DispatchThreads {
             Thread thread = new Thread(this::runThread);
             thread.setName(name + "-" + i);
             thread.setDaemon(true);
-            thread.start();
             threads.add(thread);
+            thread.start();
         }
     }
 
