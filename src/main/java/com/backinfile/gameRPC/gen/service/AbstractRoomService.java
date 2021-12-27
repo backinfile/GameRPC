@@ -1,26 +1,17 @@
-package ${packagePath};
+package com.backinfile.gameRPC.gen.service;
 
 import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.rpc.Port;
-<#list imports as import>
-import ${import};
-</#list>
+import com.backinfile.gameRPC.gen.struct.*;
 
-<#if hasComment>
-/**
-<#list comments as comment>
- * ${comment}
-</#list>
- */
-</#if>
-public abstract class ${serviceType} extends Port {
-    public static final String PORT_ID_PREFIX = "${serviceName}Service";
+public abstract class AbstractRoomService extends Port {
+    public static final String PORT_ID_PREFIX = "RoomService";
 
     public static class M {
         public static final int ENTER_LONG = 0;
     }
 
-    public ${serviceType}(String serviceId) {
+    public AbstractRoomService(String serviceId) {
         super(serviceId);
     }
 
@@ -58,8 +49,5 @@ public abstract class ${serviceType} extends Port {
     public abstract void enter(long humanId);
 
 
-<#list rpcList as rpc>
-    ${rpc.client?if_exists }
-    public abstract void ${rpc.name}(<#list ([rpc.clientVar] + rpc.callParams) as param>${param.typeName} ${param.name}${param?has_next?string(", ","")}</#list>);
-</#list>
+    public abstract void login(long id, String name);
 }
