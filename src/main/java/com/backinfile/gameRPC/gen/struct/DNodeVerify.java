@@ -27,10 +27,12 @@ public class DNodeVerify extends DSyncBase {
         return new DNodeVerify.Builder();
     }
 
+	/** player token */
     public String getToken() {
         return token;
     }
 
+	/** player token */
     public boolean hasToken() {
         return _valueMap.get(0);
     }
@@ -77,6 +79,7 @@ public class DNodeVerify extends DSyncBase {
             return _DNodeVerify;
         }
 
+	    /** player token */
         public void setToken(String token) {
             this.token = token;
             this._valueMap.set(0);

@@ -34,8 +34,12 @@ enum EBoardState {
 	Close, // close
 }
 
+// rpc分两个等级
+// server只有服务器能调用
+// client任何人都能调用
+// client之间不能直接发送消息
 service LoginService {
-    rpc login(String token, String name) returns(int code, String token);
+    server login(String token, String name) returns(int code, String token);
 }
 
 service RoomService {

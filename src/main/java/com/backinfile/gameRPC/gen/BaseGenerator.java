@@ -37,7 +37,7 @@ public class BaseGenerator {
             throw new SysException(result.errorStr);
         }
 
-        // 生成
+        // 生成自定义类
         for (var struct : result.userDefineStructMap.values()) {
             Map<String, Object> rootMap = new HashMap<>();
             List<Map<String, Object>> fields = new ArrayList<>();
@@ -50,6 +50,9 @@ public class BaseGenerator {
 
             int i = 0;
             for (var field : struct.getChildren()) {
+                if (struct.getType() == DSyncStructType.Enum) {
+                    continue;
+                }
                 final int index = i++;
                 var fieldMap = new HashMap<String, Object>();
                 fields.add(fieldMap);
@@ -83,6 +86,30 @@ public class BaseGenerator {
             }
             FreeMarkerManager.formatFileInProj("templates", "base.ftl",
                     rootMap, "src/main/java/com/backinfile/gameRPC/gen/struct", struct.getTypeName() + ".java");
+        }
+
+        // 生成自定义枚举
+        for (var struct : result.userDefineStructMap.values()) {
+            if (struct.getType() != DSyncStructType.Enum) {
+                continue;
+            }
+            var enumMap = new HashMap<String, Object>();
+            var fields = new ArrayList<Map<String, Object>>();
+            enumMap.put("packagePath", result.properties.getOrDefault("java_package", "default"));
+            enumMap.put("className", struct.getTypeName());
+            enumMap.put("fields", fields);
+            enumMap.put("comments", struct.getComments());
+            enumMap.put("hasComment", !struct.getComments().isEmpty());
+            enumMap.put("defaultValue", struct.getDefaultValue());
+            for (var field : struct.getChildren()) {
+                var fieldMap = new HashMap<String, Object>();
+                fields.add(fieldMap);
+                fieldMap.put("name", field.name);
+                fieldMap.put("hasComment", !field.comment.isEmpty());
+                fieldMap.put("comment", field.comment);
+            }
+            FreeMarkerManager.formatFileInProj("templates", "enum.ftl",
+                    enumMap, "src/main/java/com/backinfile/gameRPC/gen/struct", struct.getTypeName() + ".java");
         }
 
     }

@@ -16,3 +16,9 @@ struct DProp {
     String propName;
     float propValue;
 }
+
+enum EObjectType {
+    Int,
+    Long,
+    String, // 字符串
+}

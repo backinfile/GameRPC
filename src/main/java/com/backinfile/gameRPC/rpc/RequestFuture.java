@@ -4,16 +4,16 @@ import com.backinfile.gameRPC.support.func.Action1;
 
 public class RequestFuture implements IRequestFuture {
     private Port curPort;
-    private Call call;
+    private long callId;
 
-    public RequestFuture(Port curPort, Call call) {
+    public RequestFuture(Port curPort, long callId) {
         this.curPort = curPort;
-        this.call = call;
+        this.callId = callId;
     }
 
     @Override
     public RequestFuture then(Action1<IResult> callback, Object... context) {
-        curPort.getTerminal().listenOutCall(call, callback, context);
+        curPort.getTerminal().listenOutCall(callId, callback, context);
         return this;
     }
 }

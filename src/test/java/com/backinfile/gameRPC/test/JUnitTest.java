@@ -1,21 +1,19 @@
 package com.backinfile.gameRPC.test;
 
 
-import com.backinfile.gameRPC.gen.BaseGenerator;
 import com.backinfile.gameRPC.gen.struct.DNodeVerify;
 import com.backinfile.gameRPC.rpc.Call;
 import com.backinfile.gameRPC.rpc.CallPoint;
 import com.backinfile.gameRPC.rpc.Node;
 import com.backinfile.gameRPC.serialize.SerializableManager;
+import org.junit.jupiter.api.Test;
 
 public class JUnitTest {
 
-    public static void main(String[] args) {
-        testDSyncSerialize();
-    }
+    @Test
+    public void testDSyncSerialize() {
+        SerializableManager.registerAll();
 
-    public static void testDSyncSerialize() {
-        SerializableManager.registerAll(BaseGenerator.class.getClassLoader(), JUnitTest.class.getClassLoader());
         DNodeVerify.Builder builder = DNodeVerify.newBuilder();
         builder.addIdList(1234L);
         builder.setToken("playerToken");
@@ -26,7 +24,8 @@ public class JUnitTest {
 
         Call newCall = Node.serializeCall(call);
 
-        System.out.println();
-        assert true;
+        assert newCall.id == call.id;
+        assert newCall.args[0] instanceof DNodeVerify;
+        assert ((DNodeVerify) newCall.args[0]).getToken().equals(dNodeVerify.getToken());
     }
 }

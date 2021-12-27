@@ -16,6 +16,7 @@ public class Call implements ISerializable {
     public int method;
     public Object[] args = null;
     public int code = 0;
+    public boolean fromClient = false;
 
 
     public Call() {
@@ -61,6 +62,7 @@ public class Call implements ISerializable {
         out.write(method);
         out.write(args);
         out.write(code);
+        out.write(fromClient);
     }
 
     @Override
@@ -72,5 +74,6 @@ public class Call implements ISerializable {
         method = in.read();
         args = in.read();
         code = in.read();
+        fromClient = in.read();
     }
 }

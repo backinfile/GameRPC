@@ -39,7 +39,7 @@ public interface ITerminal {
      *
      * @param context 上下文
      */
-    void listenOutCall(Call call, Action1<IResult> action, Object... context);
+    void listenOutCall(long callId, Action1<IResult> action, Object... context);
 
 
     void pulse();
@@ -57,6 +57,6 @@ public interface ITerminal {
      * @param context 上下文
      */
     default void listenLastOutCall(Action1<IResult> action, Object... context) {
-        listenOutCall(getLastOutCall(), action, context);
+        listenOutCall(getLastOutCall().id, action, context);
     }
 }

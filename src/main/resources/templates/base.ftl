@@ -36,22 +36,37 @@ public class ${structType} extends DSyncBase {
 
 <#list fields as field>
 <#if field.array>
+<#if field.hasComment>
+	/** ${field.comment} */
+</#if>
     public int get${field.largeName}Size() {
         return ${field.name}.size();
     }
 
+<#if field.hasComment>
+	/** ${field.comment} */
+</#if>
     public ${field.typeName} get${field.largeName}List() {
         return ${field.name};
     }
 
+<#if field.hasComment>
+	/** ${field.comment} */
+</#if>
     public boolean has${field.largeName}() {
         return _valueMap.get(${field.index});
     }
 <#else>
+<#if field.hasComment>
+	/** ${field.comment} */
+</#if>
     public ${field.typeName} get${field.largeName}() {
         return ${field.name};
     }
 
+<#if field.hasComment>
+	/** ${field.comment} */
+</#if>
     public boolean has${field.largeName}() {
         return _valueMap.get(${field.index});
     }
@@ -108,16 +123,25 @@ public class ${structType} extends DSyncBase {
 
 <#list fields as field>
 <#if field.array>
+<#if field.hasComment>
+	    /** ${field.comment} */
+</#if>
         public void addAll${field.largeName}(${field.typeName} ${field.name}) {
             this.${field.name}.addAll(${field.name});
             this._valueMap.set(${field.index});
         }
 
+<#if field.hasComment>
+	    /** ${field.comment} */
+</#if>
         public void add${field.largeName}(${field.singleTypeName} ${field.name}) {
             this.${field.name}.add(${field.name});
             this._valueMap.set(${field.index});
         }
 <#else>
+<#if field.hasComment>
+	    /** ${field.comment} */
+</#if>
         public void set${field.largeName}(${field.typeName} ${field.name}) {
             this.${field.name} = ${field.name};
             this._valueMap.set(${field.index});

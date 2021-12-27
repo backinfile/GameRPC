@@ -37,7 +37,11 @@ public abstract class RemoteNode {
             }
             Call call = gameMessage.getMessage();
             if (call.to.nodeID.equals(Node.Instance.getId())) {
-                Node.Instance.handleCall(call);
+                if (isVerified()) {
+                    Node.Instance.handleCall(call);
+                } else {
+                    Node.Instance.handleVerify(call);
+                }
             } else {
                 Log.core.error("接收到了发送至其他node({})的消息，忽略", call.to.nodeID);
             }

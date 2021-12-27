@@ -1,9 +1,9 @@
 package com.backinfile.gameRPC.gen.struct;
 
 import com.backinfile.gameRPC.DSyncBase;
-import com.backinfile.gameRPC.gen.GameRPCGenFile;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
+import com.backinfile.gameRPC.gen.GameRPCGenFile;
 
 import java.util.*;
 
@@ -13,8 +13,8 @@ public class DHuman extends DSyncBase {
     public static final int TYPE_ID = Objects.hash(DHuman.class.getSimpleName());
     public static int FIELD_NUM = 2;
 
-    private List<DProp> props;
-    private DProp singleProp;
+	private List<DProp> props;
+	private DProp singleProp;
 
     DHuman() {
     }
@@ -56,8 +56,8 @@ public class DHuman extends DSyncBase {
     }
 
     public static class Builder extends DSyncBase.Builder {
-        private final List<DProp> props = new ArrayList<>();
-        private DProp singleProp = null;
+	    final private List<DProp> props = new ArrayList<>();
+	    private DProp singleProp = null;
 
         private Builder() {
             this._valueMap = new BitSet(FIELD_NUM);

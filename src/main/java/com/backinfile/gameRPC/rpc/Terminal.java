@@ -76,12 +76,12 @@ public class Terminal implements ITerminal {
     }
 
     @Override
-    public void listenOutCall(Call call, Action1<IResult> action, Object... context) {
-        WaitResult waitResult = waitingResponseList.get(call.id);
+    public void listenOutCall(long callId, Action1<IResult> action, Object... context) {
+        WaitResult waitResult = waitingResponseList.get(callId);
         if (waitResult == null) {
             waitResult = new WaitResult();
             waitResult.expireTime = Time2.getCurMillis() + CALL_EXPIRE_TIME;
-            waitingResponseList.put(call.id, waitResult);
+            waitingResponseList.put(callId, waitResult);
         }
         waitResult.addCallback(action, context);
     }
@@ -113,7 +113,7 @@ public class Terminal implements ITerminal {
      */
     private void invoke(Call call) {
         lastInCall = call;
-        mPort.handleRequest(call.method, new Params(call.args));
+        mPort.handleRequest(call.method, call.args);
     }
 
     /**

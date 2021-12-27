@@ -1,6 +1,13 @@
 package com.backinfile.gameRPC.test;
 
-public abstract class RoomService {
+public class RoomService extends AbstractRoomService {
+    public RoomService(String portId) {
+        super(portId);
+    }
 
-    public abstract void enter(long humanId);
+    @Override
+    public void enter(long humanId) {
+
+    }
+
 }

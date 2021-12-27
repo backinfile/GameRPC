@@ -8,7 +8,6 @@ import com.backinfile.gameRPC.support.Utils;
 import com.backinfile.gameRPC.support.func.Action0;
 
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.DelayQueue;
@@ -162,13 +161,15 @@ public class Node {
                 Log.core.error("此call发送到未知port(" + call.to.portID + ")，已忽略", new SysException(""));
                 return;
             }
+            RemoteNode remoteNode = getRemoteNode(call.from.nodeID);
+            if (remoteNode instanceof RemoteNode.RemoteClient) {
+                call.fromClient = true;
+            }
             port.addCall(serializeCall(call));
             awake(port);
         } else {
-            Optional<RemoteNode> optional = remoteNodeList.stream()
-                    .filter(n -> n.getId().equals(call.to.nodeID)).findAny();
-            if (optional.isPresent()) {
-                RemoteNode remoteNode = optional.get();
+            RemoteNode remoteNode = getRemoteNode(call.to.nodeID);
+            if (remoteNode != null) {
                 remoteNode.sendMessage(call);
                 Log.core.info("handle call to local node to portId:{}", call.to.portID);
             } else {
@@ -176,6 +177,15 @@ public class Node {
             }
 
         }
+    }
+
+    private RemoteNode getRemoteNode(String nodeId) {
+        for (var remoteNode : remoteNodeList) {
+            if (remoteNode.getId().equals(nodeId)) {
+                return remoteNode;
+            }
+        }
+        return null;
     }
 
     /**
@@ -201,5 +211,12 @@ public class Node {
 
     public String getId() {
         return nodeId;
+    }
+
+    public void handleVerify(Call call) {
+        post(() -> {
+            RemoteNode remoteNode = getRemoteNode(call.from.nodeID);
+            remoteNode.verified = true; // TODO 具体校验规则
+        });
     }
 }
