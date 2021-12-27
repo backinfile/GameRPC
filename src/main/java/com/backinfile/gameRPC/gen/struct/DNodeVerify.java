@@ -14,11 +14,12 @@ import java.util.*;
 public class DNodeVerify extends DSyncBase {
     public static final String TYPE_NAME = DNodeVerify.class.getSimpleName();
     public static final int TYPE_ID = Objects.hash(DNodeVerify.class.getSimpleName());
-    public static int FIELD_NUM = 2;
+    public static int FIELD_NUM = 3;
 
 	/** player token */
 	private String token;
 	private List<Long> idList;
+	private EType type;
 
     DNodeVerify() {
     }
@@ -49,22 +50,33 @@ public class DNodeVerify extends DSyncBase {
         return _valueMap.get(1);
     }
 
+    public EType getType() {
+        return type;
+    }
+
+    public boolean hasType() {
+        return _valueMap.get(2);
+    }
+
     @Override
     public void writeTo(OutputStream out) {
         out.write(token);
         out.write(idList);
+        out.write(type);
     }
 
     @Override
     public void readFrom(InputStream in) {
         token = in.read();
         idList = Collections.unmodifiableList(in.read());
+        type = in.read();
     }
 
     public static class Builder extends DSyncBase.Builder {
 	    /** player token */
 	    private String token = "";
 	    final private List<Long> idList = new ArrayList<>();
+	    private EType type = EType.Int;
 
         private Builder() {
             this._valueMap = new BitSet(FIELD_NUM);
@@ -76,6 +88,7 @@ public class DNodeVerify extends DSyncBase {
             _DNodeVerify._valueMap.or(this._valueMap);
             _DNodeVerify.token = this.token;
             _DNodeVerify.idList = List.copyOf(this.idList);
+            _DNodeVerify.type = this.type;
             return _DNodeVerify;
         }
 
@@ -93,6 +106,11 @@ public class DNodeVerify extends DSyncBase {
         public void addIdList(long idList) {
             this.idList.add(idList);
             this._valueMap.set(1);
+        }
+
+        public void setType(EType type) {
+            this.type = type;
+            this._valueMap.set(2);
         }
 
     }

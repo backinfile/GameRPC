@@ -5,6 +5,7 @@ java_package="com.backinfile.gameRPC.gen.struct"
 struct DNodeVerify {
     String token; // player token
     long[] idList;
+    EType type;
 }
 
 struct DHuman {
@@ -17,7 +18,7 @@ struct DProp {
     float propValue;
 }
 
-enum EObjectType {
+enum EType {
     Int,
     Long,
     String, // 字符串
