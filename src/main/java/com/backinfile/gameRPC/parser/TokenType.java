@@ -9,6 +9,8 @@ public enum TokenType {
     RBrace("\\}"), // 右花括号
     LSquareBracket("\\["), // 左方括号
     RSquareBracket("\\]"), // 右方括号
+    LRoundBracket("\\("), // 左括号
+    RRoundBracket("\\)"), // 右括号
     Semicolon(";"), // 分号
     Comment("// (.*)", "//(.*)"), // 注释
     Comma(","), // 逗号

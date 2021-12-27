@@ -52,6 +52,10 @@ public class BaseGenerator {
             throw new SysException(result.errorStr);
         }
 
+        String packageName = result.properties.getOrDefault("java_package", "default");
+        String structPackage = packageName + "struct";
+        String servicePackage = packageName + "service";
+
         // 生成自定义类
         for (var struct : result.userDefineStructMap.values()) {
             if (struct.getType() == DSyncStructType.Enum) {
@@ -60,7 +64,7 @@ public class BaseGenerator {
             Map<String, Object> rootMap = new HashMap<>();
             List<Map<String, Object>> fields = new ArrayList<>();
             rootMap.put("fields", fields);
-            rootMap.put("packagePath", result.properties.getOrDefault("java_package", "default"));
+            rootMap.put("packagePath", structPackage);
             rootMap.put("structType", struct.getTypeName());
             rootMap.put("structVarName", "_" + struct.getTypeName());
             rootMap.put("comments", struct.getComments());
@@ -110,7 +114,7 @@ public class BaseGenerator {
             }
             var enumMap = new HashMap<String, Object>();
             var fields = new ArrayList<Map<String, Object>>();
-            enumMap.put("packagePath", result.properties.getOrDefault("java_package", "default"));
+            enumMap.put("packagePath", structPackage);
             enumMap.put("className", struct.getTypeName());
             enumMap.put("fields", fields);
             enumMap.put("comments", struct.getComments());

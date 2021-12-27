@@ -1,4 +1,4 @@
-package com.backinfile.gameRPC.gen.struct;
+package com.backinfile.gameRPC.genstruct;
 
 public enum EType {
     Int,

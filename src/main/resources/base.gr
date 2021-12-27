@@ -1,5 +1,5 @@
 
-java_package="com.backinfile.gameRPC.gen.struct"
+java_package="com.backinfile.gameRPC.gen"
 
 // 用于验证Node身份
 struct DNodeVerify {
@@ -23,3 +23,16 @@ enum EType {
     Long,
     String, // 字符串
 }
+
+// client表示这个字段是客户端表示符， 来自客户端的消息需要这个字段才能访问
+// 客户端请求这个rpc时，由框架自动填入这个字段
+// 如果rpc没有这个字段，则客户端不能访问
+service Room {
+    rpc login(client long id, String name) returns(int code, String message);
+}
+
+//service RPCServer {
+//}
+
+//service RPCClient {
+//}

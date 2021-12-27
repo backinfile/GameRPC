@@ -1,6 +1,8 @@
 package com.backinfile.gameRPC.net;
 
 import com.backinfile.gameRPC.Log;
+import com.backinfile.gameRPC.rpc.Node;
+import com.backinfile.gameRPC.rpc.RemoteNode;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -76,7 +78,9 @@ public class Server extends Thread {
             Log.server.info("channelActive id={}, num={}", connection.getId(), connectionCount);
 
             // TODO set connection to game
-
+            RemoteNode.RemoteClient remoteClient = new RemoteNode.RemoteClient();
+            remoteClient.setConnection(connection);
+            Node.Instance.addRemoteNode(remoteClient);
         }
 
         @Override

@@ -19,8 +19,9 @@ public class SyntaxWorker {
     public static class Result {
         public boolean hasError = false;
         public String errorStr = "";
-        public Map<String, DSyncStruct> userDefineStructMap = new HashMap<>();
-        public Map<String, String> properties = new HashMap<>();
+        public Map<String, DSyncStruct> userDefineStructMap = new HashMap<>(); // 自定义类
+        public Map<String, String> properties = new HashMap<>(); // 自定义属性
+        public Map<String, DSyncService> serviceMap = new HashMap<>(); // 自定义服务
     }
 
     private int index = 0;
@@ -48,10 +49,12 @@ public class SyntaxWorker {
                 var token = match(TokenType.Comment);
                 lastCommentTokens.add(token);
 
-                var nextToken = getToken();
-                if (nextToken != null) {
-                    if (nextToken.lineno != token.lineno + 1) {
-                        lastCommentTokens.clear();
+                if (index < tokens.size()) {
+                    var nextToken = getToken();
+                    if (nextToken != null) {
+                        if (nextToken.lineno != token.lineno + 1) {
+                            lastCommentTokens.clear();
+                        }
                     }
                 }
                 continue;
@@ -62,12 +65,58 @@ public class SyntaxWorker {
             } else if (test(DS_ENUM)) {
                 parseEnum();
             } else if (test(DS_SERV)) {
-                // TODO
+                parseService();
             } else { // 不是枚举不是结构体， 是自定义变量
                 parseProperty();
             }
         }
 
+    }
+
+    private void parseService() {
+        match(DS_SERV);
+        Token nameToken = match(TokenType.Name);
+        String name = nameToken.value;
+        match(TokenType.LBrace);
+
+        DSyncService service = new DSyncService();
+        service.name = name;
+        result.serviceMap.put(name, service);
+
+        while (test("rpc")) { // rpc 开始
+            next();
+            DSyncService.DSyncRPC rpc = new DSyncService.DSyncRPC();
+            service.rpcList.add(rpc);
+            Token rpcNameToken = match(TokenType.Name);
+            rpc.name = rpcNameToken.value;
+            match(TokenType.LRoundBracket); // rpc参数开始
+
+            if (test("client")) {
+                next();
+                rpc.clientVar = parseFiled();
+                if (test(TokenType.Comma)) {
+                    next();
+                }
+            }
+            for (int i = 0; i < 10 && !test(TokenType.RRoundBracket); i++) {
+                rpc.callParams.add(parseFiled());
+            }
+            match(TokenType.RRoundBracket); // rpc参数结束
+
+            if (test("returns")) { // rpc返回开始
+                next();
+                match(TokenType.LRoundBracket);
+                for (int i = 0; i < 10 && !test(TokenType.RRoundBracket); i++) {
+                    rpc.returnParams.add(parseFiled());
+                    if (test(TokenType.Comma)) {
+                        next();
+                    }
+                }
+                match(TokenType.RRoundBracket); // rpc返回结束
+            }
+            match(TokenType.Semicolon);
+        } // rpc结束
+        match(TokenType.RBrace);
     }
 
     private void parseProperty() {
@@ -88,7 +137,7 @@ public class SyntaxWorker {
         lastCommentTokens.clear();
 
         while (!test(TokenType.RBrace)) {
-            parseFiled(struct);
+            struct.addVariable(parseFiled());
         }
         match(TokenType.RBrace);
 
@@ -99,7 +148,7 @@ public class SyntaxWorker {
         result.userDefineStructMap.put(typeName, struct);
     }
 
-    private void parseFiled(DSyncStruct struct) {
+    private DSyncVariable parseFiled() {
         boolean isArray = false;
         var typeToken = match(TokenType.Name);
         var varType = DSyncStructType.match(typeToken.value);
@@ -113,16 +162,17 @@ public class SyntaxWorker {
         if (varType == DSyncStructType.UserDefine) {
             variable.setTypeName(typeToken.value);
         }
-        struct.addVariable(variable);
-        var semToken = match(TokenType.Semicolon);
-
-        if (test(TokenType.Comment)) {
-            var commentToken = getToken();
-            if (semToken.lineno == commentToken.lineno) {
-                variable.comment = commentToken.value;
-                next();
+        if (test(TokenType.Semicolon)) {
+            Token semToken = match(TokenType.Semicolon);
+            if (test(TokenType.Comment)) {
+                var commentToken = getToken();
+                if (semToken.lineno == commentToken.lineno) {
+                    variable.comment = commentToken.value;
+                    next();
+                }
             }
         }
+        return variable;
     }
 
     private void parseEnum() {

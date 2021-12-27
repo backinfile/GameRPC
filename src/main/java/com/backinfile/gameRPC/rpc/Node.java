@@ -52,10 +52,14 @@ public class Node {
      * 连接服务器
      */
     public void connectServer(String ip, int port) {
+        RemoteNode.RemoteServer remoteServer = new RemoteNode.RemoteServer(ip, port);
+        addRemoteNode(remoteServer);
+    }
+
+    public void addRemoteNode(RemoteNode remoteNode) {
         post(() -> {
-            RemoteNode.RemoteServer remoteServer = new RemoteNode.RemoteServer(ip, port);
-            remoteNodeList.add(remoteServer);
-            remoteServer.start();
+            remoteNodeList.add(remoteNode);
+            remoteNode.start();
         });
     }
 

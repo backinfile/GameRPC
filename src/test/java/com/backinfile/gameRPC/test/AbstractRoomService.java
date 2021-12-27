@@ -1,11 +1,13 @@
 package com.backinfile.gameRPC.test;
 
+import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.rpc.Port;
 
 public abstract class AbstractRoomService extends Port {
+    public static final String PORT_ID_PREFIX = "RoomService";
 
-    private static class M {
-        public static final int ENTER_L = 0;
+    public static class M {
+        public static final int ENTER_LONG = 0;
     }
 
     public AbstractRoomService(String portId) {
@@ -22,6 +24,7 @@ public abstract class AbstractRoomService extends Port {
 
     @Override
     public void casePulse() {
+        Log.server.info("room pulse");
     }
 
     @Override
@@ -29,12 +32,18 @@ public abstract class AbstractRoomService extends Port {
     }
 
     @Override
-    public void handleRequest(int requestKey, Object[] args) {
+    public void handleRequest(int requestKey, Object[] args, boolean fromClient) {
         switch (requestKey) {
-            case M.ENTER_L:
+            case M.ENTER_LONG:
                 enter((long) args[0]);
+                break;
+            default:
+                Log.core.info("unknown requestKey {} for {}", requestKey, this.getClass().getSimpleName());
         }
     }
+
+
+    public abstract void pulse(boolean perSec);
 
     public abstract void enter(long humanId);
 }

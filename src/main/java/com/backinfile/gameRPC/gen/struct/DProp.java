@@ -1,4 +1,4 @@
-package com.backinfile.gameRPC.gen.struct;
+package com.backinfile.gameRPC.genstruct;
 
 import com.backinfile.gameRPC.DSyncBase;
 import com.backinfile.gameRPC.serialize.InputStream;
