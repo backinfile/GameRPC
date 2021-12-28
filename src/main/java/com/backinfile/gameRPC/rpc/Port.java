@@ -55,7 +55,7 @@ public abstract class Port implements Delayed {
     public abstract void casePulseAfter();
 
 
-    public abstract void handleRequest(int requestKey, Object[] args, boolean fromClient);
+    public abstract void handleRequest(int requestKey, Object[] args, Object clientVar);
 
     public void caseRunOnce() {
         // 设置port时间

@@ -113,7 +113,7 @@ public class Terminal implements ITerminal {
      */
     private void invoke(Call call) {
         lastInCall = call;
-        mPort.handleRequest(call.method, call.args, call.fromClient);
+        mPort.handleRequest(call.method, call.args, null);
     }
 
     /**

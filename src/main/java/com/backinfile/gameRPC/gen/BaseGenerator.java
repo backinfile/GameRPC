@@ -116,7 +116,12 @@ public class BaseGenerator {
                 rpcRootMap.put("name", rpc.name);
                 rpcRootMap.put("callParams", getParamRootMap(result, rpc.callParams));
                 rpcRootMap.put("returnParams", getParamRootMap(result, rpc.returnParams));
-                rpcRootMap.put("clientVar", getParamRootMap(result, Collections.singletonList(rpc.clientVar)).get(0));
+                rpcRootMap.put("hashCode", rpc.getMethodHashCode());
+                rpcRootMap.put("hashName", rpc.getMethodHashName());
+                rpcRootMap.put("callString", rpc.getMethodCallString());
+                if (rpc.clientVar != null) {
+                    rpcRootMap.put("clientVar", getParamRootMap(result, Collections.singletonList(rpc.clientVar)).get(0));
+                }
             }
 
             FreeMarkerManager.formatFileInProj("templates", "service.ftl",

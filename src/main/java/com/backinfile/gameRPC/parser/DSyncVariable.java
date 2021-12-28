@@ -27,6 +27,13 @@ public class DSyncVariable {
         return getSingleTypeName();
     }
 
+    public String getTypeNameForConst() {
+        if (isArray) {
+            return "L" + getLargeTypeName();
+        }
+        return getLargeTypeName();
+    }
+
     public String getSingleTypeName() {
         String typeName = "";
         switch (type) {

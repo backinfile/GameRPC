@@ -2,10 +2,8 @@ package com.backinfile.gameRPC.support;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class Utils {
     public static final String UTF8 = "utf-8";
@@ -190,10 +188,6 @@ public class Utils {
         return false;
     }
 
-    public static void main(String[] args) {
-        System.out.println(Utils.format("{} say {}, {0}", "ww", "hi"));
-    }
-
     private static long idMax = 1;
 
     public static long applyId() {
@@ -213,4 +207,37 @@ public class Utils {
             }
         }
     }
+
+    /**
+     * 将驼峰式变量名转化为下划线式
+     * roomService -> room_service
+     */
+    public static String convertVarName(String name) {
+        List<Integer> sPointList = new ArrayList<>();
+        for (int index = 0; index < name.length() - 1; index++) {
+            char first = name.charAt(index);
+            char next = name.charAt(index + 1);
+            if (Character.isUpperCase(first) && Character.isLowerCase(next)) {
+                sPointList.add(index);
+            }
+        }
+        sPointList.add(name.length());
+
+        StringJoiner sj = new StringJoiner("_");
+        int begin = 0;
+        for (var end : sPointList) {
+            sj.add(name.substring(begin, end).toLowerCase());
+            begin = end;
+        }
+        return sj.toString();
+    }
+
+    // test
+    public static void main(String[] args) {
+        System.out.println(Utils.format("{} say {}, {0}", "ww", "hi"));
+        for (var str : Arrays.asList("roomService", "room", "RPC", "RPCService", "convertVarName")) {
+            System.out.println(str + " -> " + convertVarName(str));
+        }
+    }
+
 }

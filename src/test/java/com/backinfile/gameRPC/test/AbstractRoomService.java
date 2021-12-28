@@ -32,7 +32,7 @@ public abstract class AbstractRoomService extends Port {
     }
 
     @Override
-    public void handleRequest(int requestKey, Object[] args, boolean fromClient) {
+    public void handleRequest(int requestKey, Object[] args, Object clientVar) {
         switch (requestKey) {
             case M.ENTER_LONG:
                 enter((long) args[0]);

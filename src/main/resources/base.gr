@@ -29,6 +29,10 @@ enum EType {
 // 如果rpc没有这个字段，则客户端不能访问
 service Room {
     rpc login(client long id, String name) returns(int code, String message);
+
+    rpc startGame(client long id);
+
+    rpc getHumanInfo(long id) returns(String name);
 }
 
 //service RPCServer {
