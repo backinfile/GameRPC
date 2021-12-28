@@ -28,7 +28,7 @@ enum EType {
 // 客户端请求这个rpc时，由框架自动填入这个字段
 // 如果rpc没有这个字段，则客户端不能访问
 service Room {
-    rpc login(client long id, String name) returns(int code, String message);
+    rpc login(client long id, String name, bool local) returns(int code, String message, bool online);
 
     rpc startGame(client long id);
 

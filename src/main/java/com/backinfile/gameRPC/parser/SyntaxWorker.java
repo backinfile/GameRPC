@@ -100,6 +100,9 @@ public class SyntaxWorker {
             }
             for (int i = 0; i < 10 && !test(TokenType.RRoundBracket); i++) {
                 rpc.callParams.add(parseFiled());
+                if (test(TokenType.Comma)) {
+                    next();
+                }
             }
             match(TokenType.RRoundBracket); // rpc参数结束
 

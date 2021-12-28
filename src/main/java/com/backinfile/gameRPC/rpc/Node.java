@@ -169,7 +169,7 @@ public class Node {
             if (remoteNode instanceof RemoteNode.RemoteClient) {
                 call.fromClient = true;
             }
-            port.addCall(serializeCall(call));
+            port.getTerminal().addCall(serializeCall(call));
             awake(port);
         } else {
             RemoteNode remoteNode = getRemoteNode(call.to.nodeID);

@@ -64,13 +64,28 @@ public abstract class ${serviceType} extends Port {
 
 
 <#list rpcList as rpc>
+    @RPCMethod
 <#if rpc.clientVar??>
-    @RPCMethod
-    public abstract void ${rpc.name}(<#list ([rpc.clientVar] + rpc.callParams) as param>${param?is_first?then("@ClientField ","")}${param.typeName} ${param.name}${param?has_next?then(", ","")}</#list>);
+    public abstract void ${rpc.name}(${rpc.name?cap_first}Context context, <#list ([rpc.clientVar] + rpc.callParams) as param>${param?is_first?then("@ClientField ","")}${param.typeName} ${param.name}${param?has_next?then(", ","")}</#list>);
 <#else>
-    @RPCMethod
     public abstract void ${rpc.name}(<#list rpc.callParams as param>${param.typeName} ${param.name}${param?has_next?then(", ","")}</#list>);
 </#if>
 
+</#list>
+
+
+<#list rpcList as rpc>
+    protected static class ${rpc.name?cap_first}Context {
+        private final Call lastInCall;
+
+        private ${rpc.name?cap_first}Context(Call lastInCall) {
+            this.lastInCall = lastInCall;
+        }
+
+        public void returns(int code, String message, boolean online) {
+            Call callReturn = lastInCall.newCallReturn(new Object[]{code, message, online});
+            Node.Instance.handleCall(callReturn);
+        }
+    }
 </#list>
 }

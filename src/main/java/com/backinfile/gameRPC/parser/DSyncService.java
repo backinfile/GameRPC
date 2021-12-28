@@ -23,6 +23,10 @@ public class DSyncService {
         public final List<DSyncVariable> callParams = new ArrayList<>();
         public final List<DSyncVariable> returnParams = new ArrayList<>();
 
+        public String getMethodName() {
+            return name.substring(0, 1).toUpperCase() + name.substring(1);
+        }
+
         public String getMethodHashName() {
             StringJoiner sj = new StringJoiner("_");
             sj.add(Utils.convertVarName(name));
@@ -32,10 +36,39 @@ public class DSyncService {
             return sj.toString();
         }
 
+
         public int getMethodHashCode() {
             return getMethodHashName().hashCode();
         }
 
+        // login(LoginContext context, @ClientField long id, String name, boolean local)
+        public String getMethodBodyString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(name);
+            sb.append("(");
+            sb.append(Utils.format("{}Context context", getMethodName()));
+            if (clientVar != null || !callParams.isEmpty()) {
+                sb.append(", ");
+            }
+
+            if (clientVar != null) {
+                sb.append(Utils.format("@ClientField {} {}", clientVar.getTypeName(), clientVar.name));
+                if (!callParams.isEmpty()) {
+                    sb.append(", ");
+                }
+            }
+            for (int i = 0; i < callParams.size(); i++) {
+                var param = callParams.get(i);
+                sb.append(Utils.format("{} {}", param.getTypeName(), param.name));
+                if (i != callParams.size() - 1) {
+                    sb.append(", ");
+                }
+            }
+            sb.append(")");
+            return sb.toString();
+        }
+
+        // login(new LoginContext(from), (long) clientVar, (String) args[0], (boolean) args[1]);
         public String getMethodCallString() {
             StringBuilder sb = new StringBuilder();
             sb.append(name);
@@ -55,6 +88,18 @@ public class DSyncService {
                 }
             }
             sb.append(");");
+            return sb.toString();
+        }
+
+        public String getMethodReturnsString() {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < returnParams.size(); i++) {
+                var param = returnParams.get(i);
+                sb.append(Utils.format("{} {}", param.getTypeName(), param.name));
+                if (i != returnParams.size() - 1) {
+                    sb.append(", ");
+                }
+            }
             return sb.toString();
         }
     }

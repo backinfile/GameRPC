@@ -2,7 +2,6 @@ package com.backinfile.gameRPC.rpc;
 
 import com.backinfile.gameRPC.Log;
 import com.backinfile.support.func.Action0;
-import com.backinfile.support.func.Action1;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Delayed;
@@ -89,22 +88,6 @@ public abstract class Port implements Delayed {
         curPort.set(this);
         terminal.executeInCall();
         curPort.set(null);
-    }
-
-    void addCall(Call call) {
-        terminal.addCall(call);
-    }
-
-    public void returns(Object... values) {
-        terminal.returns(values);
-    }
-
-    public void returns(Call call, Object... results) {
-        terminal.returns(call, results);
-    }
-
-    public void listen(Action1<IResult> consumer) {
-        terminal.listenLastOutCall(consumer);
     }
 
     public String getId() {

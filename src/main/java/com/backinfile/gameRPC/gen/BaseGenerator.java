@@ -119,6 +119,8 @@ public class BaseGenerator {
                 rpcRootMap.put("hashCode", rpc.getMethodHashCode());
                 rpcRootMap.put("hashName", rpc.getMethodHashName());
                 rpcRootMap.put("callString", rpc.getMethodCallString());
+                rpcRootMap.put("returnsString", rpc.getMethodReturnsString());
+                rpcRootMap.put("bodyString", rpc.getMethodBodyString());
                 if (rpc.clientVar != null) {
                     rpcRootMap.put("clientVar", getParamRootMap(result, Collections.singletonList(rpc.clientVar)).get(0));
                 }

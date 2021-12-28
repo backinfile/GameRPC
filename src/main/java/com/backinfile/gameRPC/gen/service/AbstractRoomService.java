@@ -2,13 +2,12 @@ package com.backinfile.gameRPC.gen.service;
 
 import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.rpc.*;
-import com.backinfile.gameRPC.gen.struct.*;
 
 public abstract class AbstractRoomService extends Port {
     public static final String PORT_ID_PREFIX = "RoomService";
 
     public static class M {
-        public static final int LOGIN_STRING = -1071324729;
+        public static final int LOGIN_STRING_BOOLEAN = -1232480880;
         public static final int START_GAME = -1573540433;
         public static final int GET_HUMAN_INFO_LONG = -1381217262;
     }
@@ -36,9 +35,10 @@ public abstract class AbstractRoomService extends Port {
 
     @Override
     public void handleRequest(int requestKey, Object[] args, Object clientVar) {
+        Call from = getTerminal().getLastInCall();
         switch (requestKey) {
-            case M.LOGIN_STRING: {
-                login((long) clientVar, (String) args[0]);
+            case M.LOGIN_STRING_BOOLEAN: {
+                login(new LoginContext(from), (long) clientVar, (String) args[0], (boolean) args[1]);
                 break;
             }
             case M.START_GAME: {
@@ -57,16 +57,28 @@ public abstract class AbstractRoomService extends Port {
 
     public abstract void pulse(boolean perSec);
 
-    public abstract void enter(long humanId);
-
 
     @RPCMethod
-    public abstract void login(@ClientField long id, String name);
+    public abstract void login(LoginContext context, @ClientField long id, String name, boolean local);
 
     @RPCMethod
     public abstract void startGame(@ClientField long id);
 
     @RPCMethod
     public abstract void getHumanInfo(long id);
+
+
+    protected static class LoginContext {
+        private final Call lastInCall;
+
+        private LoginContext(Call lastInCall) {
+            this.lastInCall = lastInCall;
+        }
+
+        public void returns(int code, String message, boolean online) {
+            Call callReturn = lastInCall.newCallReturn(new Object[]{code, message, online});
+            Node.Instance.handleCall(callReturn);
+        }
+    }
 
 }
