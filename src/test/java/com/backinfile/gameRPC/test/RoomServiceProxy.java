@@ -1,7 +1,7 @@
 package com.backinfile.gameRPC.test;
 
 import com.backinfile.gameRPC.rpc.*;
-import com.backinfile.gameRPC.support.func.Action1;
+import com.backinfile.support.func.Action1;
 
 public class RoomServiceProxy {
     private RoomServiceProxy() {
@@ -16,6 +16,7 @@ public class RoomServiceProxy {
         CallPoint from = new CallPoint(localPort.getNode().getId(), localPort.getId());
         Call call = Proxy.rpcRequest(localPort.getNode().getId(), localPort.getId(), AbstractRoomService.M.ENTER_LONG, new Object[]{humanId});
         IEnterFuture.EnterFuture future = new IEnterFuture.EnterFuture();
+        return future;
     }
 
     @FunctionalInterface

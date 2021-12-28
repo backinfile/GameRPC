@@ -4,8 +4,8 @@ import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.net.Server;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
-import com.backinfile.gameRPC.support.Utils;
-import com.backinfile.gameRPC.support.func.Action0;
+import com.backinfile.support.Utils;
+import com.backinfile.support.func.Action0;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;

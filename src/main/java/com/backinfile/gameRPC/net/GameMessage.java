@@ -5,7 +5,7 @@ import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.rpc.Call;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
-import com.backinfile.gameRPC.support.Utils;
+import com.backinfile.support.Utils;
 
 /**
  * 用于包装socket中传递的消息

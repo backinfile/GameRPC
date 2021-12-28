@@ -5,7 +5,7 @@ import com.backinfile.gameRPC.rpc.Call;
 import com.backinfile.gameRPC.rpc.CallPoint;
 import com.backinfile.gameRPC.rpc.MapResult;
 import com.backinfile.gameRPC.rpc.Params;
-import com.backinfile.gameRPC.support.Utils;
+import com.backinfile.support.Utils;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 

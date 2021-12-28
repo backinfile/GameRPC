@@ -1,8 +1,8 @@
 package com.backinfile.gameRPC.net;
 
 import com.backinfile.gameRPC.Log;
-import com.backinfile.gameRPC.support.Time2;
-import com.backinfile.gameRPC.support.Utils;
+import com.backinfile.support.Time2;
+import com.backinfile.support.Utils;
 import io.netty.channel.Channel;
 
 import java.util.concurrent.ConcurrentLinkedQueue;

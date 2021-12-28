@@ -1,6 +1,7 @@
 package com.backinfile.gameRPC.parser;
 
-import com.backinfile.gameRPC.support.Utils;
+
+import com.backinfile.support.Utils;
 
 import java.util.ArrayList;
 import java.util.List;

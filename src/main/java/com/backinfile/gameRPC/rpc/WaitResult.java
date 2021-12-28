@@ -1,7 +1,7 @@
 package com.backinfile.gameRPC.rpc;
 
-import com.backinfile.gameRPC.support.Time2;
-import com.backinfile.gameRPC.support.func.Action1;
+import com.backinfile.support.Time2;
+import com.backinfile.support.func.Action1;
 
 import java.util.ArrayList;
 import java.util.List;

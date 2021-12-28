@@ -1,6 +1,7 @@
 package com.backinfile.gameRPC.net;
 
-import com.backinfile.gameRPC.support.Utils;
+
+import com.backinfile.support.Utils;
 
 import java.io.IOException;
 

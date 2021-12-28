@@ -1,7 +1,7 @@
 package com.backinfile.gameRPC.rpc;
 
 
-import com.backinfile.gameRPC.support.func.Action1;
+import com.backinfile.support.func.Action1;
 
 public interface ITerminal {
 
