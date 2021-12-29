@@ -13,7 +13,7 @@ public abstract class AbstractLoginService extends Port {
         public static final int TESTRPC = -1422437357;
     }
 
-    private final TimerQueue timerQueue = new TimerQueue();
+    protected final TimerQueue timerQueue = new TimerQueue();
     private final Timer perSecTimer = new Timer(Time2.SEC, 0);
 
     public AbstractLoginService() {

@@ -15,7 +15,7 @@ public abstract class AbstractRoomService extends Port {
         public static final int GET_HUMAN_INFO_LONG = -1381217262;
     }
 
-    private final TimerQueue timerQueue = new TimerQueue();
+    protected final TimerQueue timerQueue = new TimerQueue();
     private final Timer perSecTimer = new Timer(Time2.SEC, 0);
 
     public AbstractRoomService() {

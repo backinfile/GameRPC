@@ -1,6 +1,7 @@
 package com.backinfile.gameRPC.rpc;
 
 import com.backinfile.gameRPC.Log;
+import com.backinfile.support.Utils;
 import com.backinfile.support.func.Action0;
 
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class DispatchThreads {
             thread.setDaemon(true);
             threads.add(thread);
             thread.start();
+            Log.game.info("Thread {} start", thread.getName());
         }
     }
 
@@ -71,6 +73,7 @@ public class DispatchThreads {
             }
         }
         abortedNum.incrementAndGet();
+        Log.game.info("Thread {} finish", Thread.currentThread().getName());
     }
 
     public void abort() {
@@ -79,10 +82,8 @@ public class DispatchThreads {
 
     public void abortSync() {
         threadAbort = true;
-        while (true) {
-            if (isAborted()) {
-                break;
-            }
+        while (!isAborted()) {
+            Utils.sleep(1);
         }
     }
 

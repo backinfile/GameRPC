@@ -2,7 +2,6 @@ package com.backinfile.gameRPC.test;
 
 import com.backinfile.gameRPC.rpc.Node;
 import com.backinfile.gameRPC.serialize.SerializableManager;
-import com.backinfile.support.Utils;
 
 public class TestServer {
 
@@ -12,6 +11,6 @@ public class TestServer {
         node.addPort(new RoomService());
         node.addPort(new LoginService());
         node.startUp();
-        Utils.readExit();
+        node.join();
     }
 }

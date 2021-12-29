@@ -12,7 +12,7 @@ public abstract class AbstractRPCClientService extends Port {
     public static class M {
     }
 
-    private final TimerQueue timerQueue = new TimerQueue();
+    protected final TimerQueue timerQueue = new TimerQueue();
     private final Timer perSecTimer = new Timer(Time2.SEC, 0);
 
     public AbstractRPCClientService() {

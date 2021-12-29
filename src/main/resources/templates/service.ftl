@@ -24,7 +24,7 @@ public abstract class ${serviceType} extends Port {
 </#list>
     }
 
-    private final TimerQueue timerQueue = new TimerQueue();
+    protected final TimerQueue timerQueue = new TimerQueue();
     private final Timer perSecTimer = new Timer(Time2.SEC, 0);
 
     public ${serviceType}() {

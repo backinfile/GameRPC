@@ -23,6 +23,7 @@ public class Node {
     private final DelayQueue<Port> portsWaitForReschedule = new DelayQueue<>();
     private final ConcurrentHashMap<String, Port> allPorts = new ConcurrentHashMap<>();
     private DispatchThreads dispatchThreads;
+    private DispatchThreads mainThread;
     private static final int THREAD_NUM = 3;
     private final ConcurrentLinkedQueue<Action0> postActionList = new ConcurrentLinkedQueue<>();
     private final String nodeId;
@@ -66,16 +67,28 @@ public class Node {
     public void startUp() {
         String name = nodeId;
         Thread.currentThread().setName("Node-" + name);
-        dispatchThreads = new DispatchThreads(("Node-" + name) + "DispatchThread", THREAD_NUM,
+        dispatchThreads = new DispatchThreads(("Node-" + name) + "-DispatchThread", THREAD_NUM,
                 null, this::dispatchRun, null);
         dispatchThreads.start();
+
+        mainThread = new DispatchThreads(("Node-" + name) + "-MainDispatchThread", 1, null, this::pulse, null);
+        mainThread.start();
+
+        Log.core.info("=============== node {} 启动 ===============", nodeId);
     }
 
 
     public void abort() {
         Log.core.info("node {} 中断开始.....", nodeId);
-        dispatchThreads.abortSync();
-        Log.core.info("node {} 中断完成", nodeId);
+        dispatchThreads.abort();
+        mainThread.abort();
+    }
+
+    public void join() {
+        while (!dispatchThreads.isAborted() || !mainThread.isAborted()) {
+            Utils.sleep(100);
+        }
+        Log.core.info("=============== node {} 关闭 ===============", nodeId);
     }
 
     public void addPort(Port port) {
@@ -83,6 +96,7 @@ public class Node {
             Log.core.info("add port {}", port.getClass().getSimpleName());
             port.setNode(this);
             allPorts.put(port.getId(), port);
+            port.startup();
             portsWaitForRun.add(port);
         });
     }
@@ -96,7 +110,9 @@ public class Node {
         } else {
             pulsePort(port);
         }
+    }
 
+    private void pulse() {
         // pulse remoteNode
         for (RemoteNode remoteNode : remoteNodeList) {
             remoteNode.pulse();

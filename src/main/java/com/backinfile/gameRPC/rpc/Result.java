@@ -53,7 +53,7 @@ public class Result implements IResult {
 
     @Override
     public int getErrorCode() {
-        return 0;
+        return errorCode;
     }
 
     public void setErrorCode(int errorCode) {

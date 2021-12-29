@@ -4,7 +4,9 @@ import com.backinfile.gameRPC.Log;
 import com.backinfile.support.Time2;
 import com.backinfile.support.func.Action1;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -70,9 +72,28 @@ public class Terminal implements ITerminal {
 
     @Override
     public void pulse() {
-        // 检查有没有失效的listen
-        waitingResponseList.values().removeIf(WaitResult::isExpire);
         executeInCall();
+
+
+        // 清理超时的listen
+        List<Long> toRemove = new ArrayList<>();
+        for (var entry : waitingResponseList.entrySet()) {
+            if (entry.getValue().isExpire()) {
+                toRemove.add(entry.getKey());
+            }
+        }
+        for (var id : toRemove) {
+            WaitResult waitResult = waitingResponseList.remove(id);
+            for (var callback : waitResult.callbackHandlers) {
+                try {
+                    Result result = new Result();
+                    result.setErrorCode(ConstRPC.RPC_CODE_TIME_OUT);
+                    callback.action.invoke(result);
+                } catch (Exception e) {
+                    Log.core.error("run rpc result callbackHandler function error", e);
+                }
+            }
+        }
     }
 
     @Override
