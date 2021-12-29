@@ -65,7 +65,13 @@ public abstract class ${serviceType} extends Port {
         switch (requestKey) {
 <#list rpcList as rpc>
             case M.${rpc.hashName?upper_case}: {
+<#if rpc.clientVar??>
+                if (clientVar != null) {
+                    ${rpc.callString}
+                }
+<#else>
                 ${rpc.callString}
+</#if>
                 break;
             }
 </#list>

@@ -63,7 +63,7 @@ public class ${proxyType} {
 <#list rpcList as rpc>
     @FunctionalInterface
     public interface I${rpc.name?cap_first}FutureListener {
-        void onResult(<@listParams params=rpc.returnParams/>${(rpc.callParams?size>0)?then(", ", "")}Params context);
+        void onResult(<@listParams params=rpc.returnParams/>${(rpc.returnParams?size>0)?then(", ", "")}Params context);
     }
 
     public static class ${rpc.name?cap_first}Future {
@@ -86,7 +86,7 @@ public class ${proxyType} {
         public ${rpc.name?cap_first}Future then(I${rpc.name?cap_first}FutureListener listener) {
             localPort.getTerminal().listenOutCall(callId, r -> {
                 if (r.getErrorCode() == 0) {
-                    listener.onResult(<@listParamCalls params=rpc.returnParams/>${(rpc.callParams?size>0)?then(", ", "")}contextParams.copy());
+                    listener.onResult(<@listParamCalls params=rpc.returnParams/>${(rpc.returnParams?size>0)?then(", ", "")}contextParams.copy());
                 }
             });
             return this;

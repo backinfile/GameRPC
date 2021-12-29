@@ -59,11 +59,15 @@ public abstract class AbstractLoginService extends Port {
         Call from = getTerminal().getLastInCall();
         switch (requestKey) {
             case M.VERIFY: {
-                verify(new VerifyContext(from), (String) clientVar);
+                if (clientVar != null) {
+                    verify(new VerifyContext(from), (String) clientVar);
+                }
                 break;
             }
             case M.HEART_BEAT: {
-                heartBeat(new HeartBeatContext(from), (String) clientVar);
+                if (clientVar != null) {
+                    heartBeat(new HeartBeatContext(from), (String) clientVar);
+                }
                 break;
             }
             default:
@@ -75,13 +79,13 @@ public abstract class AbstractLoginService extends Port {
     public abstract void pulse(boolean perSec);
 
     /**
-     * 身份验证
+     * 客户端连接成功后立即发送 仅用于身份验证
      */
     @RPCMethod
     public abstract void verify(VerifyContext context, @ClientField String token);
 
     /**
-     * 心跳
+     * 心跳 用于保持连接
      */
     @RPCMethod
     public abstract void heartBeat(HeartBeatContext context, @ClientField String token);

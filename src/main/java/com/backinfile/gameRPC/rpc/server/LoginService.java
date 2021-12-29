@@ -66,7 +66,6 @@ public class LoginService extends AbstractLoginService {
 
     @Override
     public void heartBeat(HeartBeatContext context, String token) {
-        Log.game.info("{} heartBeat", token);
         context.returns();
     }
 
@@ -172,7 +171,8 @@ public class LoginService extends AbstractLoginService {
         return connections;
     }
 
-    private boolean verifyToken(String token) {
+    // 校验token格式
+    private static boolean verifyToken(String token) {
         return token.length() == Utils.TOKEN_LENGTH;
     }
 }

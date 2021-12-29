@@ -34,7 +34,7 @@ public class LoginServiceProxy {
 
 
     /**
-     * 身份验证
+     * 客户端连接成功后立即发送 仅用于身份验证
      */
     @RPCMethod(client = true)
     public VerifyFuture verify() {
@@ -43,7 +43,7 @@ public class LoginServiceProxy {
     }
 
     /**
-     * 心跳
+     * 心跳 用于保持连接
      */
     @RPCMethod(client = true)
     public HeartBeatFuture heartBeat() {
