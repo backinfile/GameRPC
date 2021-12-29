@@ -114,7 +114,7 @@ public class ${structType} extends DSyncBase {
             ${structVarName}._valueMap = BitSet.valueOf(this._valueMap.toLongArray());
 <#list fields as field>
 <#if field.array>
-            ${structVarName}.${field.name} = List.copyOf(this.${field.name});
+            ${structVarName}.${field.name} = Collections.unmodifiableList(new ArrayList<>(this.${field.name}));
 <#else>
             ${structVarName}.${field.name} = this.${field.name};
 </#if>

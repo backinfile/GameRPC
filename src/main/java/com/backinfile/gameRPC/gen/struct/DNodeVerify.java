@@ -73,7 +73,7 @@ public class DNodeVerify extends DSyncBase {
             DNodeVerify _DNodeVerify = new DNodeVerify();
             _DNodeVerify._valueMap = BitSet.valueOf(this._valueMap.toLongArray());
             _DNodeVerify.token = this.token;
-            _DNodeVerify.idList = List.copyOf(this.idList);
+            _DNodeVerify.idList = Collections.unmodifiableList(new ArrayList<>(this.idList));
             return _DNodeVerify;
         }
 
