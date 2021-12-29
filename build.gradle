@@ -4,8 +4,6 @@ plugins {
 group 'com.backinfile'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = 10;
-
 repositories {
     mavenLocal()
     maven { url 'https://maven.aliyun.com/repository/public' }
