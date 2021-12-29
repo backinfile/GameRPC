@@ -1,8 +1,10 @@
 package com.backinfile.gameRPC.net;
 
 import com.backinfile.gameRPC.Log;
+import com.backinfile.gameRPC.gen.service.AbstractLoginService;
 import com.backinfile.gameRPC.rpc.Node;
-import com.backinfile.gameRPC.rpc.RemoteNode;
+import com.backinfile.gameRPC.rpc.Port;
+import com.backinfile.gameRPC.rpc.server.LoginService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -77,10 +79,11 @@ public class Server extends Thread {
             connectionCount.incrementAndGet();
             Log.server.info("channelActive id={}, num={}", connection.getId(), connectionCount);
 
-            // TODO set connection to game
-            RemoteNode.RemoteClient remoteClient = new RemoteNode.RemoteClient();
-            remoteClient.setConnection(connection);
-            Node.Instance.addRemoteNode(remoteClient);
+            // set connection to game
+            Port port = Node.Instance.getPort(AbstractLoginService.PORT_ID_PREFIX);
+            if (port instanceof LoginService) {
+                ((LoginService) port).addConnection(connection);
+            }
         }
 
         @Override
@@ -91,9 +94,8 @@ public class Server extends Thread {
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
             super.channelInactive(ctx);
-            connection.close();
-            Log.server.info("channelInactive id=" + connection.getId());
             connectionCount.decrementAndGet();
+            Log.server.info("channelInactive id:{} num:{}", connection.getId(), connectionCount);
         }
 
         @Override

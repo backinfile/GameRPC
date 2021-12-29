@@ -103,7 +103,7 @@ public class ${proxyType} {
         }
 
         /** 设置监听失效时间 */
-        public LoginFuture timeout(long timeout) {
+        public ${rpc.name?cap_first}Future timeout(long timeout) {
             localPort.getTerminal().setTimeout(callId, timeout);
             return this;
         }

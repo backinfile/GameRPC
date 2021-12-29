@@ -1,8 +1,6 @@
 package com.backinfile.gameRPC.rpc;
 
 import com.backinfile.gameRPC.Log;
-import com.backinfile.gameRPC.gen.service.AbstractLoginService;
-import com.backinfile.gameRPC.rpc.server.LoginService;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
 import com.backinfile.support.Utils;
@@ -43,23 +41,14 @@ public class Node {
     /**
      * 连接远程服务器
      */
-    public void connectServer(String ip, int port) {
-        RemoteNode.RemoteServer remoteServer = new RemoteNode.RemoteServer(ip, port);
-        addRemoteNode(remoteServer);
+    public void connectServer(String nodeId, String ip, int port) {
+        addRemoteNode(new RemoteNode(nodeId, ip, port));
     }
 
     public void addRemoteNode(RemoteNode remoteNode) {
         post(() -> {
             remoteNodeList.add(remoteNode);
             remoteNode.start();
-
-            // 客户端发来的消息转交给LoginService处理
-            if (remoteNode instanceof RemoteNode.RemoteClient) {
-                Port port = getPort(AbstractLoginService.PORT_ID_PREFIX);
-                if (port instanceof LoginService) {
-                    ((LoginService) port).addConnection(remoteNode.connection);
-                }
-            }
         });
     }
 
@@ -69,12 +58,6 @@ public class Node {
                 remoteNode.close();
             }
             remoteNodeList.remove(remoteNode);
-            if (remoteNode instanceof RemoteNode.RemoteClient) {
-                Port port = getPort(AbstractLoginService.PORT_ID_PREFIX);
-                if (port instanceof LoginService) {
-                    ((LoginService) port).clearConnection(remoteNode.connection);
-                }
-            }
             Log.core.info("远程node {} 已清理", remoteNode.getId());
         });
     }
@@ -130,10 +113,10 @@ public class Node {
     private void pulse() {
         // pulse remoteNode
         for (RemoteNode remoteNode : remoteNodeList) {
-            if (remoteNode.isAlive()) {
-                remoteNode.pulse();
-            } else {
+            if (remoteNode.isDisconnected()) {
                 clearRemoteNode(remoteNode);
+            } else {
+                remoteNode.pulse();
             }
         }
 

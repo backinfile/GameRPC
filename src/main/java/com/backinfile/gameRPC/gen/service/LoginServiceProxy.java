@@ -94,7 +94,7 @@ public class LoginServiceProxy {
         }
 
         /** 设置监听失效时间 */
-        public LoginFuture timeout(long timeout) {
+        public VerifyFuture timeout(long timeout) {
             localPort.getTerminal().setTimeout(callId, timeout);
             return this;
         }
@@ -142,7 +142,7 @@ public class LoginServiceProxy {
         }
 
         /** 设置监听失效时间 */
-        public LoginFuture timeout(long timeout) {
+        public HeartBeatFuture timeout(long timeout) {
             localPort.getTerminal().setTimeout(callId, timeout);
             return this;
         }

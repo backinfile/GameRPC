@@ -1,8 +1,6 @@
 package com.backinfile.gameRPC.net;
 
-import com.backinfile.gameRPC.Log;
 import com.backinfile.support.Time2;
-import com.backinfile.support.Utils;
 import io.netty.channel.Channel;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -10,15 +8,11 @@ import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
 public class ChannelConnection implements Delayed, Connection {
-    public static final String TAG = ChannelConnection.class.getSimpleName();
-
     private final Channel channel;
-    private final ConcurrentLinkedQueue<GameMessage> sendList = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<byte[]> inputList = new ConcurrentLinkedQueue<>();
     private long time;
     public static final int HZ = 1;
 
-    public String name;
     private final long id;
 
     public ChannelConnection(long id, Channel channel) {
@@ -31,18 +25,8 @@ public class ChannelConnection implements Delayed, Connection {
         return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public void pulse() {
         time = Time2.getCurMillis();
-
-        if (!isAlive())
-            return;
-
-        pulseSend();
-        pulseInput();
     }
 
     @Override
@@ -51,7 +35,7 @@ public class ChannelConnection implements Delayed, Connection {
         if (data == null) {
             return null;
         }
-        GameMessage gameMessage = null;
+        GameMessage gameMessage;
         try {
             gameMessage = GameMessage.build(data, 0, data.length);
         } catch (Exception e) {
@@ -63,36 +47,11 @@ public class ChannelConnection implements Delayed, Connection {
 
     @Override
     public void sendGameMessage(GameMessage gameMessage) {
-        sendList.add(gameMessage);
-    }
-
-    private void pulseSend() {
-        while (!sendList.isEmpty()) {
-            GameMessage sendMsg = sendList.poll();
-            channel.writeAndFlush(sendMsg.getBytes());
-            Log.net.info("Connection {} send {}", this.toString(), sendMsg.toString());
-        }
-    }
-
-    // 等待LoginService处理消息
-    private void pulseInput() {
-//        while (!inputList.isEmpty()) {
-//            byte[] data = inputList.poll();
-//            if (data == null)
-//                break;
-//            // TODO
-////			GameMessage gameMessage = GameMessage.buildGameMessage(data, 0, data.length);
-////			if (gameMessage != null) {
-////				Proxy.request(HumanGlobalService.PORT_NAME, RequestKey.HUMAN_GLOBAL_HANDLE_MSG,
-////						new Params("id", getId(), "msg", gameMessage));
-////			}
-//        }
+        channel.writeAndFlush(gameMessage.getBytes());
     }
 
     /**
      * 添加输入
-     *
-     * @param data
      */
     public void addInput(byte[] data) {
         inputList.add(data);
@@ -100,14 +59,6 @@ public class ChannelConnection implements Delayed, Connection {
 
     public boolean isAlive() {
         return channel.isActive();
-    }
-
-    @Override
-    public String toString() {
-        if (Utils.isNullOrEmpty(name)) {
-            return String.valueOf(id);
-        }
-        return name + "(" + id + ")";
     }
 
     @Override

@@ -36,7 +36,13 @@ public class LoginService extends AbstractLoginService {
 
         timerQueue.applyTimer(Time2.SEC, () -> {
             var proxy = LoginServiceProxy.newInstance();
-//            proxy.login()
+            proxy.verify()
+                    .then(context -> {
+                        Log.game.info("callback then");
+                    })
+                    .error((code, context) -> {
+                        Log.game.info("callback error");
+                    });
         });
     }
 

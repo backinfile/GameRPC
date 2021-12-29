@@ -6,20 +6,11 @@ import com.backinfile.gameRPC.net.Connection;
 import com.backinfile.gameRPC.net.GameMessage;
 
 // 连接远程服务器
-public abstract class RemoteNode {
+public class RemoteNode {
     private String nodeId = "";
     private final String ip;
     private final int port;
-    private Client client;
     private Connection connection;
-    private RemoveNodeStatus status = RemoveNodeStatus.None;
-
-    public enum RemoveNodeStatus {
-        None,
-        Connecting,
-        Connected,
-        Disconnected,
-    }
 
     public RemoteNode(String nodeId, String ip, int port) {
         this.nodeId = nodeId;
@@ -28,8 +19,7 @@ public abstract class RemoteNode {
     }
 
     public void start() {
-        status = RemoveNodeStatus.Connecting;
-        client = new Client(this, ip, port);
+        Client client = new Client(this, ip, port);
         client.start();
     }
 
@@ -40,11 +30,6 @@ public abstract class RemoteNode {
     public void setConnection(Connection connection) {
         this.connection = connection;
     }
-
-    public boolean isVerified() {
-        return verified;
-    }
-
 
     public void pulse() {
         if (connection.isAlive()) {
@@ -81,7 +66,7 @@ public abstract class RemoteNode {
     }
 
     public boolean isDisconnected() {
-        return status == RemoveNodeStatus.Disconnected;
+        return connection != null && !connection.isAlive();
     }
 
     public void close() {
