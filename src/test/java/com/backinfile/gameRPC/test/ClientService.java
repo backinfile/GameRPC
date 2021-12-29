@@ -14,6 +14,7 @@ public class ClientService extends AbstractClientService {
 
         timerQueue.applyTimer(Time2.SEC * 5, () -> {
             var proxy = LoginServiceProxy.newInstance("server", AbstractLoginService.PORT_ID_PREFIX);
+            proxy.verify();
             proxy.heartBeat().then(context -> {
                 Log.client.info("heartBeat callback");
             });

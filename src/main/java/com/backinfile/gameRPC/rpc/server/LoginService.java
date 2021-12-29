@@ -62,11 +62,11 @@ public class LoginService extends AbstractLoginService {
 
     @Override
     public void verify(VerifyContext context, String token) {
-        context.returns();
     }
 
     @Override
     public void heartBeat(HeartBeatContext context, String token) {
+        Log.game.info("{} heartBeat", token);
         context.returns();
     }
 
