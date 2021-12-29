@@ -75,6 +75,7 @@ public class ${structType} extends DSyncBase {
 </#list>
     @Override
     public void writeTo(OutputStream out) {
+        out.write(_valueMap.toLongArray());
 <#list fields as field>
         out.write(${field.name});
 </#list>
@@ -82,6 +83,7 @@ public class ${structType} extends DSyncBase {
 
     @Override
     public void readFrom(InputStream in) {
+        _valueMap = BitSet.valueOf((long[]) in.read());
 <#list fields as field>
 <#if field.array>
         ${field.name} = Collections.unmodifiableList(in.read());
@@ -109,8 +111,7 @@ public class ${structType} extends DSyncBase {
 
         public ${structType} build() {
             ${structType} ${structVarName} = new ${structType}();
-            ${structVarName}._valueMap = new BitSet(FIELD_NUM);
-            ${structVarName}._valueMap.or(this._valueMap);
+            ${structVarName}._valueMap = BitSet.valueOf(this._valueMap.toLongArray());
 <#list fields as field>
 <#if field.array>
             ${structVarName}.${field.name} = List.copyOf(this.${field.name});
@@ -126,25 +127,28 @@ public class ${structType} extends DSyncBase {
 <#if field.hasComment>
 	    /** ${field.comment} */
 </#if>
-        public void addAll${field.largeName}(${field.typeName} ${field.name}) {
+        public Builder addAll${field.largeName}(${field.typeName} ${field.name}) {
             this.${field.name}.addAll(${field.name});
             this._valueMap.set(${field.index});
+            return this;
         }
 
 <#if field.hasComment>
 	    /** ${field.comment} */
 </#if>
-        public void add${field.largeName}(${field.singleTypeName} ${field.name}) {
+        public Builder add${field.largeName}(${field.singleTypeName} ${field.name}) {
             this.${field.name}.add(${field.name});
             this._valueMap.set(${field.index});
+            return this;
         }
 <#else>
 <#if field.hasComment>
 	    /** ${field.comment} */
 </#if>
-        public void set${field.largeName}(${field.typeName} ${field.name}) {
+        public Builder set${field.largeName}(${field.typeName} ${field.name}) {
             this.${field.name} = ${field.name};
             this._valueMap.set(${field.index});
+            return this;
         }
 </#if>
 

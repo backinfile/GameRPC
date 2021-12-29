@@ -41,12 +41,14 @@ public class DProp extends DSyncBase {
 
     @Override
     public void writeTo(OutputStream out) {
+        out.write(_valueMap.toLongArray());
         out.write(propName);
         out.write(propValue);
     }
 
     @Override
     public void readFrom(InputStream in) {
+        _valueMap = BitSet.valueOf((long[]) in.read());
         propName = in.read();
         propValue = in.read();
     }
@@ -61,21 +63,22 @@ public class DProp extends DSyncBase {
 
         public DProp build() {
             DProp _DProp = new DProp();
-            _DProp._valueMap = new BitSet(FIELD_NUM);
-            _DProp._valueMap.or(this._valueMap);
+            _DProp._valueMap = BitSet.valueOf(this._valueMap.toLongArray());
             _DProp.propName = this.propName;
             _DProp.propValue = this.propValue;
             return _DProp;
         }
 
-        public void setPropName(String propName) {
+        public Builder setPropName(String propName) {
             this.propName = propName;
             this._valueMap.set(0);
+            return this;
         }
 
-        public void setPropValue(double propValue) {
+        public Builder setPropValue(double propValue) {
             this.propValue = propValue;
             this._valueMap.set(1);
+            return this;
         }
 
     }

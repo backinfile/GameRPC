@@ -32,6 +32,7 @@ public class RoomService extends AbstractRoomService {
             RoomServiceProxy proxy = RoomServiceProxy.newInstance();
             proxy.getHumanInfo(12321).then((human, context) -> {
                 Log.game.info("after hash={}", human.hashCode());
+                Log.game.info("id contains:{} name contains:{}", human.hasId(), human.hasName());
             });
         });
     }
@@ -54,7 +55,6 @@ public class RoomService extends AbstractRoomService {
     public void getHumanInfo(GetHumanInfoContext context, long id) {
         var builder = DHuman.newBuilder();
         builder.setId(id);
-        builder.setName("qwert");
         var dProp = DProp.newBuilder();
         dProp.setPropName("health");
         dProp.setPropValue(1200d);

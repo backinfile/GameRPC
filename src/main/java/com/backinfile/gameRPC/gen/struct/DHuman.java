@@ -54,6 +54,7 @@ public class DHuman extends DSyncBase {
 
     @Override
     public void writeTo(OutputStream out) {
+        out.write(_valueMap.toLongArray());
         out.write(id);
         out.write(name);
         out.write(props);
@@ -61,6 +62,7 @@ public class DHuman extends DSyncBase {
 
     @Override
     public void readFrom(InputStream in) {
+        _valueMap = BitSet.valueOf((long[]) in.read());
         id = in.read();
         name = in.read();
         props = Collections.unmodifiableList(in.read());
@@ -77,32 +79,35 @@ public class DHuman extends DSyncBase {
 
         public DHuman build() {
             DHuman _DHuman = new DHuman();
-            _DHuman._valueMap = new BitSet(FIELD_NUM);
-            _DHuman._valueMap.or(this._valueMap);
+            _DHuman._valueMap = BitSet.valueOf(this._valueMap.toLongArray());
             _DHuman.id = this.id;
             _DHuman.name = this.name;
             _DHuman.props = List.copyOf(this.props);
             return _DHuman;
         }
 
-        public void setId(long id) {
+        public Builder setId(long id) {
             this.id = id;
             this._valueMap.set(0);
+            return this;
         }
 
-        public void setName(String name) {
+        public Builder setName(String name) {
             this.name = name;
             this._valueMap.set(1);
+            return this;
         }
 
-        public void addAllProps(List<DProp> props) {
+        public Builder addAllProps(List<DProp> props) {
             this.props.addAll(props);
             this._valueMap.set(2);
+            return this;
         }
 
-        public void addProps(DProp props) {
+        public Builder addProps(DProp props) {
             this.props.add(props);
             this._valueMap.set(2);
+            return this;
         }
 
     }
