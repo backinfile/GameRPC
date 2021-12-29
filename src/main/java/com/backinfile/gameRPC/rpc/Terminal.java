@@ -76,14 +76,14 @@ public class Terminal implements ITerminal {
     }
 
     @Override
-    public void listenOutCall(long callId, Action1<IResult> action, Object... context) {
+    public void listenOutCall(long callId, Action1<IResult> action) {
         WaitResult waitResult = waitingResponseList.get(callId);
         if (waitResult == null) {
             waitResult = new WaitResult();
             waitResult.expireTime = Time2.getCurMillis() + CALL_EXPIRE_TIME;
             waitingResponseList.put(callId, waitResult);
         }
-        waitResult.addCallback(action, context);
+        waitResult.addCallback(action);
     }
 
     /**
@@ -126,10 +126,8 @@ public class Terminal implements ITerminal {
         WaitResult waitResult = waitingResponseList.remove(call.id);
         for (var callback : waitResult.callbackHandlers) {
             try {
-                MapResult result = new MapResult();
+                Result result = new Result(call.args);
                 result.setErrorCode(call.code);
-                result.addValues(call.args);
-                result.addContexts(callback.contexts.getValues());
                 callback.action.invoke(result);
             } catch (Exception e) {
                 Log.core.error("run rpc result callbackHandler function error", e);

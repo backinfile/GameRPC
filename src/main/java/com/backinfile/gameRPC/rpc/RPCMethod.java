@@ -11,6 +11,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)
 public @interface RPCMethod {
+
+    /**
+     * 标记这个函数需要由客户端发起，服务器接受
+     */
+    boolean client() default false;
+
     /**
      * 此函数是代理函数
      */

@@ -12,4 +12,5 @@ public class Log {
     public static Logger client = LoggerFactory.getLogger("gameRPC.client");
     public static Logger serialize = LoggerFactory.getLogger("gameRPC.serialize");
     public static Logger gen = LoggerFactory.getLogger("gameRPC.gen");
+    public static Logger game = LoggerFactory.getLogger("gameRPC.game");
 }

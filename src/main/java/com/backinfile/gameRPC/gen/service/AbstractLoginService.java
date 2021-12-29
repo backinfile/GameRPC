@@ -1,37 +1,26 @@
-package ${packagePath};
+package com.backinfile.gameRPC.gen.service;
 
 import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.rpc.*;
 import com.backinfile.support.*;
 import com.backinfile.support.timer.*;
-<#list imports as import>
-import ${import};
-</#list>
+import com.backinfile.gameRPC.gen.struct.*;
 
-<#if hasComment>
-/**
-<#list comments as comment>
- * ${comment}
-</#list>
- */
-</#if>
-public abstract class ${serviceType} extends Port {
-    public static final String PORT_ID_PREFIX = "${serviceName}Service";
+public abstract class AbstractLoginService extends Port {
+    public static final String PORT_ID_PREFIX = "LoginService";
 
     public static class M {
-<#list rpcList as rpc>
-        public static final int ${rpc.hashName?upper_case} = ${rpc.hashCode?c};
-</#list>
+        public static final int TESTRPC = -1422437357;
     }
 
     private final TimerQueue timerQueue = new TimerQueue();
     private final Timer perSecTimer = new Timer(Time2.SEC, 0);
 
-    public ${serviceType}() {
+    public AbstractLoginService() {
         super(PORT_ID_PREFIX);
     }
 
-    public ${serviceType}(String serviceId) {
+    public AbstractLoginService(String serviceId) {
         super(serviceId);
     }
 
@@ -61,12 +50,10 @@ public abstract class ${serviceType} extends Port {
     public void handleRequest(int requestKey, Object[] args, Object clientVar) {
         Call from = getTerminal().getLastInCall();
         switch (requestKey) {
-<#list rpcList as rpc>
-            case M.${rpc.hashName?upper_case}: {
-                ${rpc.callString}
+            case M.TESTRPC: {
+                testRPC(new TestRPCContext(from));
                 break;
             }
-</#list>
             default:
                 Log.core.info("unknown requestKey {} for {}", requestKey, this.getClass().getSimpleName());
         }
@@ -75,25 +62,21 @@ public abstract class ${serviceType} extends Port {
 
     public abstract void pulse(boolean perSec);
 
-<#list rpcList as rpc>
     @RPCMethod
-    public abstract void ${rpc.bodyString};
+    public abstract void testRPC(TestRPCContext context);
 
-</#list>
 
-<#list rpcList as rpc>
-    protected static class ${rpc.name?cap_first}Context {
+    protected static class TestRPCContext {
         private final Call lastInCall;
 
-        private ${rpc.name?cap_first}Context(Call lastInCall) {
+        private TestRPCContext(Call lastInCall) {
             this.lastInCall = lastInCall;
         }
 
-        public void returns(<#list rpc.returnParams as param>${param.typeName} ${param.name}${param?has_next?then(", ","")}</#list>) {
-            Call callReturn = lastInCall.newCallReturn(new Object[]{<#list rpc.returnParams as param>${param.name}${param?has_next?then(", ","")}</#list>});
+        public void returns() {
+            Call callReturn = lastInCall.newCallReturn(new Object[]{});
             Node.Instance.handleCall(callReturn);
         }
     }
 
-</#list>
 }

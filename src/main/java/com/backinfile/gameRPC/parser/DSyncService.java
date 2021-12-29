@@ -74,6 +74,11 @@ public class DSyncService {
             sb.append(name);
             sb.append("(");
 
+            sb.append(Utils.format("new {}Context(from)", getMethodName()));
+            if (clientVar != null || !callParams.isEmpty()) {
+                sb.append(", ");
+            }
+
             if (clientVar != null) {
                 sb.append(Utils.format("({}) clientVar", clientVar.getTypeName()));
                 if (!callParams.isEmpty()) {

@@ -54,7 +54,8 @@ public class BaseGenerator {
 
     // 读取协议文件
     private static SyntaxWorker.Result prepareProto() {
-        List<String> strings = FreeMarkerManager.readResource("base.gr");
+        List<String> strings = FreeMarkerManager.readResource(FreeMarkerManager.class.getClassLoader(),
+                "base.gr");
 
         // 解析协议文件
         TokenWorker.Result tokens = TokenWorker.getTokens(strings);
@@ -100,10 +101,12 @@ public class BaseGenerator {
 
         for (var service : result.serviceMap.values()) {
             String serviceType = "Abstract" + service.name + "Service";
+            String proxyType = service.name + "ServiceProxy";
             var rootMap = new HashMap<String, Object>();
             rootMap.put("packagePath", servicePackage);
             rootMap.put("serviceName", service.name);
             rootMap.put("serviceType", serviceType);
+            rootMap.put("proxyType", proxyType);
             rootMap.put("imports", Collections.singletonList(structPackage + ".*"));
             rootMap.put("comments", service.comments);
             rootMap.put("hasComment", !service.comments.isEmpty());
@@ -128,6 +131,8 @@ public class BaseGenerator {
 
             FreeMarkerManager.formatFileInProj("templates", "service.ftl",
                     rootMap, GEN_SERVICE_PATH, serviceType + ".java");
+            FreeMarkerManager.formatFileInProj("templates", "proxy.ftl",
+                    rootMap, GEN_SERVICE_PATH, proxyType + ".java");
         }
     }
 

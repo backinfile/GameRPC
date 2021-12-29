@@ -1,6 +1,5 @@
 package com.backinfile.gameRPC.rpc;
 
-import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.serialize.ISerializable;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
@@ -16,23 +15,22 @@ public class Params implements ISerializable {
     public Params() {
     }
 
+    public Params(Params params) {
+        this.values.putAll(params.values);
+    }
+
     public Params(Object... params) {
-        if (params == null)
-            return;
-        if (params.length == 0)
-            return;
-        if (params.length % 2 == 0) {
-            for (int i = 0; i < params.length; i += 2) {
-                Object key = params[i];
-                Object value = params[i + 1];
-                if (key instanceof String) {
-                    setValue((String) key, value);
-                } else {
-                    Log.core.warn("ignoring param's arg:{} {}", key, value);
-                }
-            }
-        } else {
-            Log.core.error("param 参数为奇数", new SysException());
+        addValues(params);
+    }
+
+    public void addValues(Object... params) {
+        assert params.length % 2 == 0;
+
+        for (int i = 0; i < params.length; i += 2) {
+            Object key = params[i];
+            Object value = params[i + 1];
+            assert key instanceof String;
+            setValue((String) key, value);
         }
     }
 
@@ -60,6 +58,11 @@ public class Params implements ISerializable {
         }
         return this;
     }
+
+    public Params copy() {
+        return new Params(this);
+    }
+
 
     @Override
     public void writeTo(OutputStream out) {

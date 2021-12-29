@@ -45,9 +45,9 @@ public class Call implements ISerializable {
 
     public Call newErrorReturn(int code) {
         Call callReturn = new Call();
-        callReturn.from = to;
+        callReturn.from = to.copy();
         callReturn.to = from.copy();
-        callReturn.id = id.copy();
+        callReturn.id = id;
         callReturn.code = code;
         callReturn.type = RPC_TYPE_CALL_RETURN;
         return callReturn;

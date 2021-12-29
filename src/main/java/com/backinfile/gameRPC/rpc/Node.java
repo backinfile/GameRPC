@@ -80,9 +80,10 @@ public class Node {
 
     public void addPort(Port port) {
         post(() -> {
+            Log.core.info("add port {}", port.getClass().getSimpleName());
             port.setNode(this);
-            portsWaitForRun.add(port);
             allPorts.put(port.getId(), port);
+            portsWaitForRun.add(port);
         });
     }
 
@@ -92,9 +93,9 @@ public class Node {
         if (port == null) {
             reSchedule(THREAD_NUM);
             Utils.sleep(1);
-            return;
+        } else {
+            pulsePort(port);
         }
-        pulsePort(port);
 
         // pulse remoteNode
         for (RemoteNode remoteNode : remoteNodeList) {
@@ -165,8 +166,7 @@ public class Node {
                 Log.core.error("此call发送到未知port(" + call.to.portID + ")，已忽略", new SysException(""));
                 return;
             }
-            RemoteNode remoteNode = getRemoteNode(call.from.nodeID);
-            if (remoteNode instanceof RemoteNode.RemoteClient) {
+            if (getRemoteNode(call.from.nodeID) instanceof RemoteNode.RemoteClient) {
                 call.fromClient = true;
             }
             port.getTerminal().addCall(serializeCall(call));

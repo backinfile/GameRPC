@@ -35,8 +35,12 @@ service Room {
     rpc getHumanInfo(long id) returns(String name);
 }
 
-//service RPCServer {
-//}
+service Login {
+    rpc testRPC();
+}
 
-//service RPCClient {
-//}
+service RPCServer {
+}
+
+service RPCClient {
+}

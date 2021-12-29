@@ -36,27 +36,9 @@ public interface ITerminal {
 
     /**
      * 监听rpc调用执行结果
-     *
-     * @param context 上下文
      */
-    void listenOutCall(long callId, Action1<IResult> action, Object... context);
+    void listenOutCall(long callId, Action1<IResult> action);
 
 
     void pulse();
-
-    /**
-     * rpc返回
-     */
-    default void returns(Object... values) {
-        returns(getLastInCall(), values);
-    }
-
-    /**
-     * 监听rpc调用执行结果
-     *
-     * @param context 上下文
-     */
-    default void listenLastOutCall(Action1<IResult> action, Object... context) {
-        listenOutCall(getLastOutCall().id, action, context);
-    }
 }

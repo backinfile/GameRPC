@@ -64,9 +64,9 @@ public class FreeMarkerManager {
     /**
      * 读取资源文件
      */
-    public static List<String> readResource(String resourceFile) {
+    public static List<String> readResource(ClassLoader classLoader, String resourceFile) {
         List<String> result = new ArrayList<>();
-        InputStream in = FreeMarkerManager.class.getClassLoader().getResourceAsStream(resourceFile);
+        InputStream in = classLoader.getResourceAsStream(resourceFile);
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         while (true) {
             String line = null;

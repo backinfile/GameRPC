@@ -3,8 +3,8 @@ package com.backinfile.gameRPC.serialize;
 import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.rpc.Call;
 import com.backinfile.gameRPC.rpc.CallPoint;
-import com.backinfile.gameRPC.rpc.MapResult;
 import com.backinfile.gameRPC.rpc.Params;
+import com.backinfile.gameRPC.rpc.Result;
 import com.backinfile.support.Utils;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -85,7 +85,7 @@ public class SerializableManager {
         set.add(Call.class);
         set.add(CallPoint.class);
         set.add(Params.class);
-        set.add(MapResult.class);
+        set.add(Result.class);
         return set;
     }
 }

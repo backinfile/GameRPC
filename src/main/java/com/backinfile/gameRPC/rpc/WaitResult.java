@@ -12,13 +12,12 @@ public class WaitResult {
 
     public static class Callback {
         public Action1<IResult> action;
-        public Params contexts;
     }
 
-    public void addCallback(Action1<IResult> action, Object... contexts) {
+    public void addCallback(Action1<IResult> action) {
         Callback callback = new Callback();
         callback.action = action;
-        callback.contexts = new Params(contexts);
+        callbackHandlers.add(callback);
     }
 
     public boolean isExpire() {
