@@ -16,9 +16,9 @@ public class Client extends Thread {
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
     private final String host;
     private final int port;
-    private final RemoteNode.RemoteServer remoteNode;
+    private final RemoteNode remoteNode;
 
-    public Client(RemoteNode.RemoteServer remoteNode, String host, int port) {
+    public Client(RemoteNode remoteNode, String host, int port) {
         this.remoteNode = remoteNode;
         this.host = host;
         this.port = port;
@@ -48,12 +48,13 @@ public class Client extends Thread {
                 }
             });
 
-            Log.client.info("start connect:{}", port);
+            Log.client.info("start connect {}:{}", host, port);
             Channel = b.connect().sync().channel();
             Log.client.info("connected: {}:{}", host, port);
 
             countDownLatch.await();
             Channel.closeFuture().sync();
+            Log.client.info("connection close {}:{}", host, port);
         } finally {
             group.shutdownGracefully().sync();
         }
@@ -71,7 +72,6 @@ public class Client extends Thread {
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
             super.channelActive(ctx);
-            Log.client.info("channelActive");
             connection = new ChannelConnection(0, ctx.channel());
             remoteNode.setConnection(connection);
         }
@@ -79,21 +79,18 @@ public class Client extends Thread {
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
             super.channelInactive(ctx);
-            Log.client.info("channelInactive");
-            remoteNode.setConnection(null);
+            stopClient();
         }
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             super.channelRead(ctx, msg);
-            Log.client.info("channelRead");
             connection.addInput((byte[]) msg);
         }
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             super.exceptionCaught(ctx, cause);
-            Log.client.info("exceptionCaught");
         }
 
     }

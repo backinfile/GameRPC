@@ -7,9 +7,12 @@ struct DNodeVerify {
 }
 
 // 登陆服务，当使用客户端-服务器模式时，需要在服务器启用一个登陆服务
-// 当服务器node接受到客户端的消息时，把发来的call转移至此service处理, 进行验证
+// 当接受到客户端的消息时，发来的call在此service处理, 进行验证
 // 验证完成后，此service将call推送到服务器node上
-// 客户端标志为long
 service Login {
-    rpc login(String token) returns(long id);
+    // 身份验证
+    rpc verify(client String token);
+
+    // 心跳
+    rpc heartBeat(client String token);
 }

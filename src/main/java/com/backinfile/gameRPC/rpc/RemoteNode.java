@@ -5,10 +5,33 @@ import com.backinfile.gameRPC.net.Client;
 import com.backinfile.gameRPC.net.Connection;
 import com.backinfile.gameRPC.net.GameMessage;
 
+// 连接远程服务器
 public abstract class RemoteNode {
-    protected String nodeId = "";
-    protected boolean verified = false;
-    protected Connection connection;
+    private String nodeId = "";
+    private final String ip;
+    private final int port;
+    private Client client;
+    private Connection connection;
+    private RemoveNodeStatus status = RemoveNodeStatus.None;
+
+    public enum RemoveNodeStatus {
+        None,
+        Connecting,
+        Connected,
+        Disconnected,
+    }
+
+    public RemoteNode(String nodeId, String ip, int port) {
+        this.nodeId = nodeId;
+        this.ip = ip;
+        this.port = port;
+    }
+
+    public void start() {
+        status = RemoveNodeStatus.Connecting;
+        client = new Client(this, ip, port);
+        client.start();
+    }
 
     public String getId() {
         return nodeId;
@@ -22,13 +45,16 @@ public abstract class RemoteNode {
         return verified;
     }
 
-    public abstract void start();
 
     public void pulse() {
-        pulseInput();
+        if (connection.isAlive()) {
+            connection.pulse();
+            pulseInput();
+        }
     }
 
-    // 接受来自远程的消息, 交由当前Node处理
+    // 处理来自远程的消息
+    // 无条件接受来自远程服务器的rpc
     protected void pulseInput() {
         while (isAlive()) {
             GameMessage gameMessage = connection.pollGameMessage();
@@ -37,11 +63,7 @@ public abstract class RemoteNode {
             }
             Call call = gameMessage.getMessage();
             if (call.to.nodeID.equals(Node.Instance.getId())) {
-                if (isVerified()) {
-                    Node.Instance.handleCall(call);
-                } else {
-                    Node.Instance.handleVerify(call);
-                }
+                Node.Instance.handleCall(call);
             } else {
                 Log.core.error("接收到了发送至其他node({})的消息，忽略", call.to.nodeID);
             }
@@ -58,51 +80,16 @@ public abstract class RemoteNode {
         return connection != null && connection.isAlive();
     }
 
+    public boolean isDisconnected() {
+        return status == RemoveNodeStatus.Disconnected;
+    }
+
     public void close() {
         if (connection != null) {
-            connection.close();
-            connection = null;
-        }
-    }
-
-
-    /**
-     * 连接远程客户端
-     */
-    public static class RemoteClient extends RemoteNode {
-
-        @Override
-        public void start() {
-
-        }
-    }
-
-    /**
-     * 连接远程服务器
-     */
-    public static class RemoteServer extends RemoteNode {
-        private final String ip;
-        private final int port;
-        private Client client;
-
-        public RemoteServer(String ip, int port) {
-            this.ip = ip;
-            this.port = port;
-        }
-
-        @Override
-        public void start() {
-            client = new Client(this, ip, port);
-            client.start();
-        }
-
-        @Override
-        public void close() {
-            super.close();
-            if (client != null) {
-                client.stopClient();
-                client = null;
+            if (connection.isAlive()) {
+                connection.close();
             }
+            connection = null;
         }
     }
 }

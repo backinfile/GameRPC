@@ -41,4 +41,6 @@ public interface ITerminal {
 
 
     void pulse();
+
+    void setTimeout(long callId, long timeout);
 }

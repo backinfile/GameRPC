@@ -101,6 +101,12 @@ public class ${proxyType} {
             });
             return this;
         }
+
+        /** 设置监听失效时间 */
+        public LoginFuture timeout(long timeout) {
+            localPort.getTerminal().setTimeout(callId, timeout);
+            return this;
+        }
     }
 
 </#list>

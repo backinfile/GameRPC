@@ -1,6 +1,8 @@
 package com.backinfile.gameRPC.rpc;
 
 import com.backinfile.gameRPC.Log;
+import com.backinfile.gameRPC.gen.service.AbstractLoginService;
+import com.backinfile.gameRPC.rpc.server.LoginService;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
 import com.backinfile.support.Utils;
@@ -50,6 +52,30 @@ public class Node {
         post(() -> {
             remoteNodeList.add(remoteNode);
             remoteNode.start();
+
+            // 客户端发来的消息转交给LoginService处理
+            if (remoteNode instanceof RemoteNode.RemoteClient) {
+                Port port = getPort(AbstractLoginService.PORT_ID_PREFIX);
+                if (port instanceof LoginService) {
+                    ((LoginService) port).addConnection(remoteNode.connection);
+                }
+            }
+        });
+    }
+
+    public void clearRemoteNode(RemoteNode remoteNode) {
+        post(() -> {
+            if (remoteNode.isAlive()) {
+                remoteNode.close();
+            }
+            remoteNodeList.remove(remoteNode);
+            if (remoteNode instanceof RemoteNode.RemoteClient) {
+                Port port = getPort(AbstractLoginService.PORT_ID_PREFIX);
+                if (port instanceof LoginService) {
+                    ((LoginService) port).clearConnection(remoteNode.connection);
+                }
+            }
+            Log.core.info("远程node {} 已清理", remoteNode.getId());
         });
     }
 
@@ -104,7 +130,11 @@ public class Node {
     private void pulse() {
         // pulse remoteNode
         for (RemoteNode remoteNode : remoteNodeList) {
-            remoteNode.pulse();
+            if (remoteNode.isAlive()) {
+                remoteNode.pulse();
+            } else {
+                clearRemoteNode(remoteNode);
+            }
         }
 
         // pulse post action
@@ -171,9 +201,6 @@ public class Node {
                 Log.core.error("此call发送到未知port(" + call.to.portID + ")，已忽略", new SysException(""));
                 return;
             }
-            if (getRemoteNode(call.from.nodeID) instanceof RemoteNode.RemoteClient) {
-                call.fromClient = true;
-            }
             port.getTerminal().addCall(serializeCall(call));
             awake(port);
         } else {
@@ -222,10 +249,4 @@ public class Node {
         return nodeId;
     }
 
-    public void handleVerify(Call call) {
-        post(() -> {
-            RemoteNode remoteNode = getRemoteNode(call.from.nodeID);
-            remoteNode.verified = true; // TODO 具体校验规则
-        });
-    }
 }

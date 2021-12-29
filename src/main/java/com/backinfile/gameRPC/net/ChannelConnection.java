@@ -74,18 +74,19 @@ public class ChannelConnection implements Delayed, Connection {
         }
     }
 
+    // 等待LoginService处理消息
     private void pulseInput() {
-        while (!inputList.isEmpty()) {
-            byte[] data = inputList.poll();
-            if (data == null)
-                break;
-            // TODO
-//			GameMessage gameMessage = GameMessage.buildGameMessage(data, 0, data.length);
-//			if (gameMessage != null) {
-//				Proxy.request(HumanGlobalService.PORT_NAME, RequestKey.HUMAN_GLOBAL_HANDLE_MSG,
-//						new Params("id", getId(), "msg", gameMessage));
-//			}
-        }
+//        while (!inputList.isEmpty()) {
+//            byte[] data = inputList.poll();
+//            if (data == null)
+//                break;
+//            // TODO
+////			GameMessage gameMessage = GameMessage.buildGameMessage(data, 0, data.length);
+////			if (gameMessage != null) {
+////				Proxy.request(HumanGlobalService.PORT_NAME, RequestKey.HUMAN_GLOBAL_HANDLE_MSG,
+////						new Params("id", getId(), "msg", gameMessage));
+////			}
+//        }
     }
 
     /**

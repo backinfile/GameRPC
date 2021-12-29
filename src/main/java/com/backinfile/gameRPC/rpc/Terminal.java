@@ -108,6 +108,16 @@ public class Terminal implements ITerminal {
         waitResult.addCallback(action);
     }
 
+    @Override
+    public void setTimeout(long callId, long timeout) {
+        WaitResult waitResult = waitingResponseList.get(callId);
+        if (waitResult == null) {
+            waitResult = new WaitResult();
+            waitingResponseList.put(callId, waitResult);
+        }
+        waitResult.expireTime = Time2.getCurMillis() + timeout;
+    }
+
     /**
      * 处理收到的rpc请求
      */

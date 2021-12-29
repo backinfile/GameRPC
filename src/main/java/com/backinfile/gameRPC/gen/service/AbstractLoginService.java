@@ -9,16 +9,16 @@ import com.backinfile.gameRPC.gen.struct.*;
 
 /**
  * 登陆服务，当使用客户端-服务器模式时，需要在服务器启用一个登陆服务
- * 当服务器node接受到客户端的消息时，把发来的call转移至此service处理, 进行验证
+ * 当接受到客户端的消息时，发来的call在此service处理, 进行验证
  * 验证完成后，此service将call推送到服务器node上
- * 客户端标志为long
  */
 @GameRPCGenFile
 public abstract class AbstractLoginService extends Port {
     public static final String PORT_ID_PREFIX = "LoginService";
 
     public static class M {
-        public static final int LOGIN_STRING = -1071324729;
+        public static final int VERIFY = -819951495;
+        public static final int HEART_BEAT = 1929975823;
     }
 
     protected final TimerQueue timerQueue = new TimerQueue();
@@ -58,8 +58,12 @@ public abstract class AbstractLoginService extends Port {
     public void handleRequest(int requestKey, Object[] args, Object clientVar) {
         Call from = getTerminal().getLastInCall();
         switch (requestKey) {
-            case M.LOGIN_STRING: {
-                login(new LoginContext(from), (String) args[0]);
+            case M.VERIFY: {
+                verify(new VerifyContext(from), (String) clientVar);
+                break;
+            }
+            case M.HEART_BEAT: {
+                heartBeat(new HeartBeatContext(from), (String) clientVar);
                 break;
             }
             default:
@@ -70,19 +74,41 @@ public abstract class AbstractLoginService extends Port {
 
     public abstract void pulse(boolean perSec);
 
+    /**
+     * 身份验证
+     */
     @RPCMethod
-    public abstract void login(LoginContext context, String token);
+    public abstract void verify(VerifyContext context, @ClientField String token);
+
+    /**
+     * 心跳
+     */
+    @RPCMethod
+    public abstract void heartBeat(HeartBeatContext context, @ClientField String token);
 
 
-    protected static class LoginContext {
+    protected static class VerifyContext {
         private final Call lastInCall;
 
-        private LoginContext(Call lastInCall) {
+        private VerifyContext(Call lastInCall) {
             this.lastInCall = lastInCall;
         }
 
-        public void returns(long id) {
-            Call callReturn = lastInCall.newCallReturn(new Object[]{id});
+        public void returns() {
+            Call callReturn = lastInCall.newCallReturn(new Object[]{});
+            Node.Instance.handleCall(callReturn);
+        }
+    }
+
+    protected static class HeartBeatContext {
+        private final Call lastInCall;
+
+        private HeartBeatContext(Call lastInCall) {
+            this.lastInCall = lastInCall;
+        }
+
+        public void returns() {
+            Call callReturn = lastInCall.newCallReturn(new Object[]{});
             Node.Instance.handleCall(callReturn);
         }
     }
