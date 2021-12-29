@@ -19,8 +19,8 @@ public class ClientServiceProxy {
         return new ClientServiceProxy(targetNodeId, targetPortId);
     }
 
-    public static ClientServiceProxy newInstance(String targetPortId) {
-        return new ClientServiceProxy(Node.Instance.getId(), targetPortId);
+    public static ClientServiceProxy newInstance(String targetNodeId) {
+        return new ClientServiceProxy(targetNodeId, AbstractClientService.PORT_ID_PREFIX);
     }
 
     public static ClientServiceProxy newInstance() {

@@ -15,6 +15,8 @@ service Login {
 
     // 心跳 用于保持连接
     rpc heartBeat(client String token);
+
+    rpc testAdd(client String token, int a, int b) returns(int result);
 }
 
 service Client {

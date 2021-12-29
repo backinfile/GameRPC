@@ -24,8 +24,8 @@ public class LoginServiceProxy {
         return new LoginServiceProxy(targetNodeId, targetPortId);
     }
 
-    public static LoginServiceProxy newInstance(String targetPortId) {
-        return new LoginServiceProxy(Node.Instance.getId(), targetPortId);
+    public static LoginServiceProxy newInstance(String targetNodeId) {
+        return new LoginServiceProxy(targetNodeId, AbstractLoginService.PORT_ID_PREFIX);
     }
 
     public static LoginServiceProxy newInstance() {
@@ -49,6 +49,12 @@ public class LoginServiceProxy {
     public HeartBeatFuture heartBeat() {
         Call call = Proxy.rpcRequest(targetNodeId, targetPortId, AbstractLoginService.M.HEART_BEAT, new Object[]{});
         return new HeartBeatFuture(Port.getCurrentPort(), call.id);
+    }
+
+    @RPCMethod(client = true)
+    public TestAddFuture testAdd(int a, int b) {
+        Call call = Proxy.rpcRequest(targetNodeId, targetPortId, AbstractLoginService.M.TEST_ADD_INTEGER_INTEGER, new Object[]{a, b});
+        return new TestAddFuture(Port.getCurrentPort(), call.id);
     }
 
 
@@ -143,6 +149,54 @@ public class LoginServiceProxy {
 
         /** 设置监听失效时间 */
         public HeartBeatFuture timeout(long timeout) {
+            localPort.getTerminal().setTimeout(callId, timeout);
+            return this;
+        }
+    }
+
+    @FunctionalInterface
+    public interface ITestAddFutureListener {
+        void onResult(int result, Params context);
+    }
+
+    public static class TestAddFuture {
+        private final Port localPort;
+        private final long callId;
+        private final Params contextParams = new Params();
+
+        private TestAddFuture(Port localPort, long callId) {
+            this.localPort = localPort;
+            this.callId = callId;
+        }
+
+        /** 设置Context */
+        public TestAddFuture context(Object... context) {
+            this.contextParams.addValues(context);
+            return this;
+        }
+
+        /** 监听返回事件 */
+        public TestAddFuture then(ITestAddFutureListener listener) {
+            localPort.getTerminal().listenOutCall(callId, r -> {
+                if (r.getErrorCode() == 0) {
+                    listener.onResult(r.getResult(0), contextParams.copy());
+                }
+            });
+            return this;
+        }
+
+        /** 监听出错事件 */
+        public TestAddFuture error(Action2<Integer, Params> listener) {
+            localPort.getTerminal().listenOutCall(callId, result -> {
+                if (result.getErrorCode() != 0) {
+                    listener.invoke(result.getErrorCode(), contextParams.copy());
+                }
+            });
+            return this;
+        }
+
+        /** 设置监听失效时间 */
+        public TestAddFuture timeout(long timeout) {
             localPort.getTerminal().setTimeout(callId, timeout);
             return this;
         }

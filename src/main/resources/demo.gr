@@ -1,25 +1,17 @@
-// start comment
-
 param language="java"
 param package="com.backinfile.gen"
 
-// near comment
 struct DBoard {
 	DHuman[] humans;
 	EBoardState state;
 }
 
-// comment test
+// 玩家信息
 struct DHuman {
 	long[] id;
 	float percent;
 	float[] percents; // field comment
 	string name;
-	DCardPile handPile;
-	String[] cards;
-}
-
-struct DCardPile {
 	DCard[] cards;
 }
 
@@ -35,14 +27,17 @@ enum EBoardState {
 }
 
 service LoginService {
-    rpc login(client long id, String name) returns(int code, String message);
+    rpc login(client String token, String name) returns(int code, String message);
 }
 
 service RoomService {
-
+    rpc enter(client String token) returns(int code);
+    rpc leave(client String token) returns(int code);
+    rpc getRoomInfo(client String token, long roomId) returns(String name, bool visible);
 }
 
 service Client {
     rpc boardInit(DBoard board);
     rpc gameStart();
+    rpc cardsMove(DCard[] cards);
 }

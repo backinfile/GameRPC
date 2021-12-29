@@ -31,8 +31,8 @@ public class ${proxyType} {
         return new ${proxyType}(targetNodeId, targetPortId);
     }
 
-    public static ${proxyType} newInstance(String targetPortId) {
-        return new ${proxyType}(Node.Instance.getId(), targetPortId);
+    public static ${proxyType} newInstance(String targetNodeId) {
+        return new ${proxyType}(targetNodeId, ${serviceType}.PORT_ID_PREFIX);
     }
 
     public static ${proxyType} newInstance() {

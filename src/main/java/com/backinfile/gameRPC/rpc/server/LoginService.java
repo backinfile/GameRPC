@@ -69,6 +69,11 @@ public class LoginService extends AbstractLoginService {
         context.returns();
     }
 
+    @Override
+    public void testAdd(TestAddContext context, String token, int a, int b) {
+        context.returns(a + b);
+    }
+
     private void checkIncomingCalls() {
         for (Map.Entry<String, Connection> entry : connections.entrySet()) {
             Connection connection = entry.getValue();

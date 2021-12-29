@@ -19,6 +19,7 @@ public abstract class AbstractLoginService extends Port {
     public static class M {
         public static final int VERIFY = -819951495;
         public static final int HEART_BEAT = 1929975823;
+        public static final int TEST_ADD_INTEGER_INTEGER = -100262862;
     }
 
     protected final TimerQueue timerQueue = new TimerQueue();
@@ -70,6 +71,12 @@ public abstract class AbstractLoginService extends Port {
                 }
                 break;
             }
+            case M.TEST_ADD_INTEGER_INTEGER: {
+                if (clientVar != null) {
+                    testAdd(new TestAddContext(from), (String) clientVar, (int) args[0], (int) args[1]);
+                }
+                break;
+            }
             default:
                 Log.core.info("unknown requestKey {} for {}", requestKey, this.getClass().getSimpleName());
         }
@@ -89,6 +96,9 @@ public abstract class AbstractLoginService extends Port {
      */
     @RPCMethod
     public abstract void heartBeat(HeartBeatContext context, @ClientField String token);
+
+    @RPCMethod
+    public abstract void testAdd(TestAddContext context, @ClientField String token, int a, int b);
 
 
     protected static class VerifyContext {
@@ -113,6 +123,19 @@ public abstract class AbstractLoginService extends Port {
 
         public void returns() {
             Call callReturn = lastInCall.newCallReturn(new Object[]{});
+            Node.Instance.handleCall(callReturn);
+        }
+    }
+
+    protected static class TestAddContext {
+        private final Call lastInCall;
+
+        private TestAddContext(Call lastInCall) {
+            this.lastInCall = lastInCall;
+        }
+
+        public void returns(int result) {
+            Call callReturn = lastInCall.newCallReturn(new Object[]{result});
             Node.Instance.handleCall(callReturn);
         }
     }
