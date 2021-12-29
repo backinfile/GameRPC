@@ -1,6 +1,10 @@
 package com.backinfile.gameRPC.rpc;
 
 import com.backinfile.gameRPC.Log;
+import com.backinfile.gameRPC.gen.service.AbstractLoginService;
+import com.backinfile.gameRPC.net.Connection;
+import com.backinfile.gameRPC.net.GameMessage;
+import com.backinfile.gameRPC.rpc.server.LoginService;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
 import com.backinfile.support.Utils;
@@ -178,6 +182,7 @@ public class Node {
      * 此方法线程安全
      */
     public void handleCall(Call call) {
+        // 发送到此node的消息
         if (call.to.nodeID.equals(nodeId)) {
             Port port = getPort(call.to.portID);
             if (port == null) {
@@ -186,16 +191,28 @@ public class Node {
             }
             port.getTerminal().addCall(serializeCall(call));
             awake(port);
-        } else {
+            return;
+        }
+        // 需要发送到服务器的消息
+        {
             RemoteNode remoteNode = getRemoteNode(call.to.nodeID);
             if (remoteNode != null) {
                 remoteNode.sendMessage(call);
-                Log.core.info("handle call to local node to portId:{}", call.to.portID);
-            } else {
-                Log.core.error("handle call to missing node nodeId:{} portId:{}", call.to.nodeID, call.to.portID);
+                return;
             }
-
         }
+        // 需要发送到客户端的消息
+        Port port = getPort(AbstractLoginService.PORT_ID_PREFIX);
+        if (port instanceof LoginService) {
+            String token = call.to.nodeID;
+            Connection connection = ((LoginService) port).getConnections().get(token);
+            if (connection != null && connection.isAlive()) {
+                connection.sendGameMessage(GameMessage.build(call));
+                return;
+            }
+        }
+
+        Log.core.warn("unhandled call to {},{}", call.to.nodeID, call.to.portID);
     }
 
     private RemoteNode getRemoteNode(String nodeId) {

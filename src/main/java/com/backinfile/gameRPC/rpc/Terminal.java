@@ -144,8 +144,12 @@ public class Terminal implements ITerminal {
      * 前往对应port执行来自远程的调用
      */
     private void invoke(Call call) {
+        Object clientVar = null;
+        if (call instanceof Call.LocalCall) {
+            clientVar = ((Call.LocalCall) call).clientVar;
+        }
         lastInCall = call;
-        mPort.handleRequest(call.method, call.args, null);
+        mPort.handleRequest(call.method, call.args, clientVar);
     }
 
     /**

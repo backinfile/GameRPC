@@ -11,15 +11,18 @@ import com.backinfile.gameRPC.rpc.Node;
 import com.backinfile.support.Time2;
 import com.backinfile.support.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 启动一个tpc服务器，监听来自客户端的消息，验证消息，并转发到服务器node
  */
 public class LoginService extends AbstractLoginService {
     private final int port;
-    private final Queue<Call> clientCachedCalls = new LinkedList<>();
-    private final HashMap<String, Connection> connections = new HashMap<>();
+
+    private final Map<String, Connection> connections = new ConcurrentHashMap<>();
 
     private final List<Connection> waitingVerifyConnectionList = new ArrayList<>();
 
@@ -48,6 +51,7 @@ public class LoginService extends AbstractLoginService {
 
     @Override
     public void pulse(boolean perSec) {
+
         if (perSec) {
             checkIncomingConnection();
         }
@@ -55,14 +59,15 @@ public class LoginService extends AbstractLoginService {
         checkIncomingCalls();
     }
 
+
     @Override
     public void verify(VerifyContext context, String token) {
-
+        context.returns();
     }
 
     @Override
     public void heartBeat(HeartBeatContext context, String token) {
-
+        context.returns();
     }
 
     private void checkIncomingCalls() {
@@ -161,6 +166,10 @@ public class LoginService extends AbstractLoginService {
                 connection.close();
             }
         });
+    }
+
+    public Map<String, Connection> getConnections() {
+        return connections;
     }
 
     private boolean verifyToken(String token) {

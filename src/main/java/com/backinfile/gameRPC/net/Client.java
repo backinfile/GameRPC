@@ -71,26 +71,23 @@ public class Client extends Thread {
 
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
-            super.channelActive(ctx);
             connection = new ChannelConnection(0, ctx.channel());
             remoteNode.setConnection(connection);
         }
 
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-            super.channelInactive(ctx);
             stopClient();
         }
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            super.channelRead(ctx, msg);
             connection.addInput((byte[]) msg);
         }
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            super.exceptionCaught(ctx, cause);
+            Log.game.error("error in ClientHandler {} {}", cause.getClass().getSimpleName(), cause.getMessage());
         }
 
     }

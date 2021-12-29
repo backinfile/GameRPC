@@ -72,7 +72,6 @@ public class Server extends Thread {
 
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
-            super.channelActive(ctx);
             Channel channel = ctx.channel();
             long id = idAllot.incrementAndGet();
             connection = new ChannelConnection(id, channel);
@@ -93,7 +92,6 @@ public class Server extends Thread {
 
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-            super.channelInactive(ctx);
             connectionCount.decrementAndGet();
             Log.server.info("channelInactive id:{} num:{}", connection.getId(), connectionCount);
         }

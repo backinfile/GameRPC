@@ -32,7 +32,7 @@ public class RemoteNode {
     }
 
     public void pulse() {
-        if (connection.isAlive()) {
+        if (isAlive()) {
             connection.pulse();
             pulseInput();
         }

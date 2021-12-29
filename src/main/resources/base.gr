@@ -16,3 +16,6 @@ service Login {
     // 心跳
     rpc heartBeat(client String token);
 }
+
+service Client {
+}
