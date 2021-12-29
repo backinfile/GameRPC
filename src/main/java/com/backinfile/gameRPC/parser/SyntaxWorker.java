@@ -2,11 +2,9 @@ package com.backinfile.gameRPC.parser;
 
 import com.backinfile.gameRPC.Log;
 import com.backinfile.support.StreamUtils;
+import com.backinfile.support.Utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SyntaxWorker {
     private final List<Token> tokens = new ArrayList<>();
@@ -15,6 +13,8 @@ public class SyntaxWorker {
     private static final String DS_SERV = "service";
     private final List<Token> lastCommentTokens = new ArrayList<>();
     private final Result result = new Result();
+
+    private final HashSet<String> requireDefinedType = new HashSet<>();
 
     public static class Result {
         public boolean hasError = false;
@@ -38,6 +38,16 @@ public class SyntaxWorker {
             worker.result.hasError = true;
             worker.result.errorStr = e.getMessage();
         }
+        if (!worker.result.hasError) {
+            for (var name : worker.requireDefinedType) {
+                if (!worker.result.userDefineStructMap.containsKey(name)) {
+                    worker.result.hasError = true;
+                    worker.result.errorStr = Utils.format("type {} not define!", name);
+                    break;
+                }
+            }
+        }
+
         return worker.result;
     }
 
@@ -181,6 +191,7 @@ public class SyntaxWorker {
         var variable = new DSyncVariable(nameToken.value, varType, isArray);
         if (varType == DSyncStructType.UserDefine) {
             variable.setTypeName(typeToken.value);
+            requireDefinedType.add(typeToken.value);
         }
         if (test(TokenType.Semicolon)) {
             Token semToken = match(TokenType.Semicolon);

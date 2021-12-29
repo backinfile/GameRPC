@@ -16,7 +16,6 @@ public class Call implements ISerializable {
     public int method;
     public Object[] args = null;
     public int code = 0;
-    public boolean fromClient = false;
 
 
     public Call() {
@@ -62,7 +61,6 @@ public class Call implements ISerializable {
         out.write(method);
         out.write(args);
         out.write(code);
-        out.write(fromClient);
     }
 
     @Override
@@ -74,7 +72,18 @@ public class Call implements ISerializable {
         method = in.read();
         args = in.read();
         code = in.read();
-        fromClient = in.read();
+    }
+
+    public LocalCall makeLocalCall() {
+        LocalCall localCall = new LocalCall();
+        localCall.id = this.id;
+        localCall.to = this.to;
+        localCall.from = this.from;
+        localCall.type = this.type;
+        localCall.method = this.method;
+        localCall.args = this.args;
+        localCall.code = this.code;
+        return localCall;
     }
 
     public static class LocalCall extends Call {

@@ -1,7 +1,6 @@
 package com.backinfile.gameRPC.rpc;
 
 import com.backinfile.gameRPC.Log;
-import com.backinfile.gameRPC.net.Server;
 import com.backinfile.gameRPC.serialize.InputStream;
 import com.backinfile.gameRPC.serialize.OutputStream;
 import com.backinfile.support.Utils;
@@ -30,9 +29,6 @@ public class Node {
 
     private final ArrayList<RemoteNode> remoteNodeList = new ArrayList<>();
 
-    private Server server = null;
-
-
     public Node(String nodeId) {
         this.nodeId = nodeId;
         Instance = this;
@@ -42,15 +38,8 @@ public class Node {
         return Instance;
     }
 
-    public void startServer(int port) {
-        post(() -> {
-            server = new Server(port);
-            server.start();
-        });
-    }
-
     /**
-     * 连接服务器
+     * 连接远程服务器
      */
     public void connectServer(String ip, int port) {
         RemoteNode.RemoteServer remoteServer = new RemoteNode.RemoteServer(ip, port);

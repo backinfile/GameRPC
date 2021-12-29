@@ -7,13 +7,18 @@ import com.backinfile.support.timer.*;
 import com.backinfile.gameRPC.gen.GameRPCGenFile;
 import com.backinfile.gameRPC.gen.struct.*;
 
+/**
+ * 登陆服务，当使用客户端-服务器模式时，需要在服务器启用一个登陆服务
+ * 当服务器node接受到客户端的消息时，把发来的call转移至此service处理, 进行验证
+ * 验证完成后，此service将call推送到服务器node上
+ * 客户端标志为long
+ */
 @GameRPCGenFile
 public abstract class AbstractLoginService extends Port {
     public static final String PORT_ID_PREFIX = "LoginService";
 
     public static class M {
-        public static final int TESTRPC = -1422437357;
-        public static final int TEST_ADD_INTEGER_INTEGER = -100262862;
+        public static final int LOGIN_STRING = -1071324729;
     }
 
     protected final TimerQueue timerQueue = new TimerQueue();
@@ -53,12 +58,8 @@ public abstract class AbstractLoginService extends Port {
     public void handleRequest(int requestKey, Object[] args, Object clientVar) {
         Call from = getTerminal().getLastInCall();
         switch (requestKey) {
-            case M.TESTRPC: {
-                testRPC(new TestRPCContext(from));
-                break;
-            }
-            case M.TEST_ADD_INTEGER_INTEGER: {
-                testAdd(new TestAddContext(from), (int) args[0], (int) args[1]);
+            case M.LOGIN_STRING: {
+                login(new LoginContext(from), (String) args[0]);
                 break;
             }
             default:
@@ -70,34 +71,18 @@ public abstract class AbstractLoginService extends Port {
     public abstract void pulse(boolean perSec);
 
     @RPCMethod
-    public abstract void testRPC(TestRPCContext context);
-
-    @RPCMethod
-    public abstract void testAdd(TestAddContext context, int a, int b);
+    public abstract void login(LoginContext context, String token);
 
 
-    protected static class TestRPCContext {
+    protected static class LoginContext {
         private final Call lastInCall;
 
-        private TestRPCContext(Call lastInCall) {
+        private LoginContext(Call lastInCall) {
             this.lastInCall = lastInCall;
         }
 
-        public void returns() {
-            Call callReturn = lastInCall.newCallReturn(new Object[]{});
-            Node.Instance.handleCall(callReturn);
-        }
-    }
-
-    protected static class TestAddContext {
-        private final Call lastInCall;
-
-        private TestAddContext(Call lastInCall) {
-            this.lastInCall = lastInCall;
-        }
-
-        public void returns(int result) {
-            Call callReturn = lastInCall.newCallReturn(new Object[]{result});
+        public void returns(long id) {
+            Call callReturn = lastInCall.newCallReturn(new Object[]{id});
             Node.Instance.handleCall(callReturn);
         }
     }

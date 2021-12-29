@@ -5,6 +5,12 @@ import com.backinfile.support.func.Action2;
 import com.backinfile.gameRPC.gen.GameRPCGenFile;
 import com.backinfile.gameRPC.gen.struct.*;
 
+/**
+ * 登陆服务，当使用客户端-服务器模式时，需要在服务器启用一个登陆服务
+ * 当服务器node接受到客户端的消息时，把发来的call转移至此service处理, 进行验证
+ * 验证完成后，此service将call推送到服务器node上
+ * 客户端标志为long
+ */
 @GameRPCGenFile
 public class LoginServiceProxy {
     private final String targetNodeId;
@@ -29,83 +35,35 @@ public class LoginServiceProxy {
 
 
     @RPCMethod
-    public TestRPCFuture testRPC() {
-        Call call = Proxy.rpcRequest(targetNodeId, targetPortId, AbstractLoginService.M.TESTRPC, new Object[]{});
-        return new TestRPCFuture(Port.getCurrentPort(), call.id);
-    }
-
-    @RPCMethod
-    public TestAddFuture testAdd(int a, int b) {
-        Call call = Proxy.rpcRequest(targetNodeId, targetPortId, AbstractLoginService.M.TEST_ADD_INTEGER_INTEGER, new Object[]{a, b});
-        return new TestAddFuture(Port.getCurrentPort(), call.id);
+    public LoginFuture login(String token) {
+        Call call = Proxy.rpcRequest(targetNodeId, targetPortId, AbstractLoginService.M.LOGIN_STRING, new Object[]{token});
+        return new LoginFuture(Port.getCurrentPort(), call.id);
     }
 
 
     @FunctionalInterface
-    public interface ITestRPCFutureListener {
-        void onResult(Params context);
+    public interface ILoginFutureListener {
+        void onResult(long id, Params context);
     }
 
-    public static class TestRPCFuture {
+    public static class LoginFuture {
         private final Port localPort;
         private final long callId;
         private final Params contextParams = new Params();
 
-        private TestRPCFuture(Port localPort, long callId) {
+        private LoginFuture(Port localPort, long callId) {
             this.localPort = localPort;
             this.callId = callId;
         }
 
         /** 设置Context */
-        public TestRPCFuture context(Object... context) {
+        public LoginFuture context(Object... context) {
             this.contextParams.addValues(context);
             return this;
         }
 
         /** 监听返回事件 */
-        public TestRPCFuture then(ITestRPCFutureListener listener) {
-            localPort.getTerminal().listenOutCall(callId, r -> {
-                if (r.getErrorCode() == 0) {
-                    listener.onResult(contextParams.copy());
-                }
-            });
-            return this;
-        }
-
-        /** 监听出错事件 */
-        public TestRPCFuture error(Action2<Integer, Params> listener) {
-            localPort.getTerminal().listenOutCall(callId, result -> {
-                if (result.getErrorCode() != 0) {
-                    listener.invoke(result.getErrorCode(), contextParams.copy());
-                }
-            });
-            return this;
-        }
-    }
-
-    @FunctionalInterface
-    public interface ITestAddFutureListener {
-        void onResult(int result, Params context);
-    }
-
-    public static class TestAddFuture {
-        private final Port localPort;
-        private final long callId;
-        private final Params contextParams = new Params();
-
-        private TestAddFuture(Port localPort, long callId) {
-            this.localPort = localPort;
-            this.callId = callId;
-        }
-
-        /** 设置Context */
-        public TestAddFuture context(Object... context) {
-            this.contextParams.addValues(context);
-            return this;
-        }
-
-        /** 监听返回事件 */
-        public TestAddFuture then(ITestAddFutureListener listener) {
+        public LoginFuture then(ILoginFutureListener listener) {
             localPort.getTerminal().listenOutCall(callId, r -> {
                 if (r.getErrorCode() == 0) {
                     listener.onResult(r.getResult(0), contextParams.copy());
@@ -115,7 +73,7 @@ public class LoginServiceProxy {
         }
 
         /** 监听出错事件 */
-        public TestAddFuture error(Action2<Integer, Params> listener) {
+        public LoginFuture error(Action2<Integer, Params> listener) {
             localPort.getTerminal().listenOutCall(callId, result -> {
                 if (result.getErrorCode() != 0) {
                     listener.invoke(result.getErrorCode(), contextParams.copy());
