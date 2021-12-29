@@ -36,7 +36,7 @@ public class Params implements ISerializable {
 
     public Object[] getValues() {
         List<Object> ret = new ArrayList<>(values.size() * 2);
-        for (var pair : values.entrySet()) {
+        for (Map.Entry<String, Object> pair : values.entrySet()) {
             ret.add(pair.getKey());
             ret.add(pair.getValue());
         }
@@ -53,7 +53,7 @@ public class Params implements ISerializable {
     }
 
     public Params merge(Params other) {
-        for (var pair : other.values.entrySet()) {
+        for (Map.Entry<String, Object> pair : other.values.entrySet()) {
             values.put(pair.getKey(), pair.getValue());
         }
         return this;

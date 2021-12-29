@@ -25,7 +25,7 @@ public class DSyncGenerator {
             System.out.println("usage: java -jar dSync.jar outPackagePath outFilePath outClassName dsPath templatePath templateName");
             return;
         }
-        var generator = new DSyncGenerator();
+        DSyncGenerator generator = new DSyncGenerator();
         generator.outPackagePath = args[0];
         generator.outFilePath = args[1];
         generator.outClassName = args[2];
@@ -43,8 +43,8 @@ public class DSyncGenerator {
     private String getDSSource() {
         try {
             List<String> lines = Files.readAllLines(Paths.get(dsSourceFilePath));
-            var sj = new StringJoiner("\n");
-            for (var line : lines) {
+            StringJoiner sj = new StringJoiner("\n");
+            for (String line : lines) {
                 sj.add(line);
             }
             return sj.toString();
@@ -54,15 +54,15 @@ public class DSyncGenerator {
     }
 
     private SyntaxWorker.Result getResult() {
-        var tokenResult = TokenWorker.getTokens(dsSource);
+        TokenWorker.Result tokenResult = TokenWorker.getTokens(dsSource);
         return SyntaxWorker.parse(tokenResult.tokens);
     }
 
     private void doGenFile() {
-        var result = getResult();
-        var rootMap = new HashMap<String, Object>();
-        var structs = new ArrayList<Map<String, Object>>();
-        var enums = new ArrayList<Map<String, Object>>();
+        SyntaxWorker.Result result = getResult();
+        HashMap<String, Object> rootMap = new HashMap<String, Object>();
+        ArrayList<Map<String, Object>> structs = new ArrayList<Map<String, Object>>();
+        ArrayList<Map<String, Object>> enums = new ArrayList<Map<String, Object>>();
 
         if (result.hasError) {
             throw new DSyncException(result.errorStr);
@@ -72,19 +72,19 @@ public class DSyncGenerator {
         rootMap.put("handlerClassName", outClassName);
         rootMap.put("structs", structs);
         rootMap.put("enums", enums);
-        for (var struct : result.userDefineStructMap.values()) {
+        for (DSyncStruct struct : result.userDefineStructMap.values()) {
             if (struct.getType() == DSyncStructType.Enum) {
                 continue;
             }
-            var structMap = new HashMap<String, Object>();
+            HashMap<String, Object> structMap = new HashMap<String, Object>();
             structs.add(structMap);
-            var fields = new ArrayList<Map<String, Object>>();
+            ArrayList<Map<String, Object>> fields = new ArrayList<Map<String, Object>>();
             structMap.put("className", struct.getTypeName());
             structMap.put("fields", fields);
             structMap.put("comments", struct.getComments());
             structMap.put("hasComment", !struct.getComments().isEmpty());
-            for (var field : struct.getChildren()) {
-                var fieldMap = new HashMap<String, Object>();
+            for (DSyncVariable field : struct.getChildren()) {
+                HashMap<String, Object> fieldMap = new HashMap<String, Object>();
                 fields.add(fieldMap);
                 fieldMap.put("typeName", field.getTypeName());
                 fieldMap.put("name", field.name);
@@ -102,7 +102,7 @@ public class DSyncGenerator {
                 fieldMap.put("comment", field.comment);
 
                 if (field.type == DSyncStructType.UserDefine) {
-                    var dSyncStruct = result.userDefineStructMap.get(field.typeName);
+                    DSyncStruct dSyncStruct = result.userDefineStructMap.get(field.typeName);
                     if (dSyncStruct.getType() == DSyncStructType.Enum) {
                         fieldMap.put("baseType", false);
                         fieldMap.put("enumType", true);
@@ -115,20 +115,20 @@ public class DSyncGenerator {
             }
         }
 
-        for (var struct : result.userDefineStructMap.values()) {
+        for (DSyncStruct struct : result.userDefineStructMap.values()) {
             if (struct.getType() != DSyncStructType.Enum) {
                 continue;
             }
-            var enumMap = new HashMap<String, Object>();
+            HashMap<String, Object> enumMap = new HashMap<String, Object>();
             enums.add(enumMap);
-            var fields = new ArrayList<Map<String, Object>>();
+            ArrayList<Map<String, Object>> fields = new ArrayList<Map<String, Object>>();
             enumMap.put("className", struct.getTypeName());
             enumMap.put("fields", fields);
             enumMap.put("comments", struct.getComments());
             enumMap.put("hasComment", !struct.getComments().isEmpty());
             enumMap.put("defaultValue", struct.getDefaultValue());
-            for (var field : struct.getChildren()) {
-                var fieldMap = new HashMap<String, Object>();
+            for (DSyncVariable field : struct.getChildren()) {
+                HashMap<String, Object> fieldMap = new HashMap<String, Object>();
                 fields.add(fieldMap);
                 fieldMap.put("name", field.name);
                 fieldMap.put("hasComment", !field.comment.isEmpty());

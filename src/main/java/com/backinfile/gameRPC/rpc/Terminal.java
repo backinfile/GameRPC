@@ -4,10 +4,7 @@ import com.backinfile.gameRPC.Log;
 import com.backinfile.support.Time2;
 import com.backinfile.support.func.Action1;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -77,7 +74,7 @@ public class Terminal implements ITerminal {
 
         // 清理超时的listen
         List<Long> toRemove = new ArrayList<>();
-        for (var entry : waitingResponseList.entrySet()) {
+        for (Map.Entry<Long, WaitResult> entry : waitingResponseList.entrySet()) {
             if (entry.getValue().isExpire()) {
                 toRemove.add(entry.getKey());
             }
@@ -85,7 +82,7 @@ public class Terminal implements ITerminal {
         for (long id : toRemove) {
             Log.core.warn("超时清理 callId:{} port:{}", id, mPort.getId());
             WaitResult waitResult = waitingResponseList.remove(id);
-            for (var callback : waitResult.callbackHandlers) {
+            for (WaitResult.Callback callback : waitResult.callbackHandlers) {
                 try {
                     Result result = new Result();
                     result.setErrorCode(ConstRPC.RPC_CODE_TIME_OUT);
@@ -160,7 +157,7 @@ public class Terminal implements ITerminal {
             return;
         }
         WaitResult waitResult = waitingResponseList.remove(call.id);
-        for (var callback : waitResult.callbackHandlers) {
+        for (WaitResult.Callback callback : waitResult.callbackHandlers) {
             try {
                 Result result = new Result(call.args);
                 result.setErrorCode(call.code);

@@ -216,7 +216,7 @@ public class Node {
     }
 
     private RemoteNode getRemoteNode(String nodeId) {
-        for (var remoteNode : remoteNodeList) {
+        for (RemoteNode remoteNode : remoteNodeList) {
             if (remoteNode.getId().equals(nodeId)) {
                 return remoteNode;
             }

@@ -30,7 +30,7 @@ public class DSyncService {
         public String getMethodHashName() {
             StringJoiner sj = new StringJoiner("_");
             sj.add(Utils.convertVarName(name));
-            for (var param : callParams) {
+            for (DSyncVariable param : callParams) {
                 sj.add(param.getTypeNameForConst());
             }
             return sj.toString();
@@ -58,7 +58,7 @@ public class DSyncService {
                 }
             }
             for (int i = 0; i < callParams.size(); i++) {
-                var param = callParams.get(i);
+                DSyncVariable param = callParams.get(i);
                 sb.append(Utils.format("{} {}", param.getTypeName(), param.name));
                 if (i != callParams.size() - 1) {
                     sb.append(", ");
@@ -86,7 +86,7 @@ public class DSyncService {
                 }
             }
             for (int i = 0; i < callParams.size(); i++) {
-                var param = callParams.get(i);
+                DSyncVariable param = callParams.get(i);
                 sb.append(Utils.format("({}) args[{}]", param.getTypeName(), i));
                 if (i != callParams.size() - 1) {
                     sb.append(", ");
@@ -99,7 +99,7 @@ public class DSyncService {
         public String getMethodReturnsString() {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < returnParams.size(); i++) {
-                var param = returnParams.get(i);
+                DSyncVariable param = returnParams.get(i);
                 sb.append(Utils.format("{} {}", param.getTypeName(), param.name));
                 if (i != returnParams.size() - 1) {
                     sb.append(", ");

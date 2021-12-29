@@ -39,7 +39,7 @@ public class SyntaxWorker {
             worker.result.errorStr = e.getMessage();
         }
         if (!worker.result.hasError) {
-            for (var name : worker.requireDefinedType) {
+            for (String name : worker.requireDefinedType) {
                 if (!worker.result.userDefineStructMap.containsKey(name)) {
                     worker.result.hasError = true;
                     worker.result.errorStr = Utils.format("type {} not define!", name);
@@ -75,11 +75,11 @@ public class SyntaxWorker {
     // 如果下一行是空行，清空所有暂存的注释
     private boolean catchComment() {
         if (test(TokenType.Comment)) {
-            var token = match(TokenType.Comment);
+            Token token = match(TokenType.Comment);
             lastCommentTokens.add(token);
 
             if (index < tokens.size()) {
-                var nextToken = getToken();
+                Token nextToken = getToken();
                 if (nextToken != null) {
                     if (nextToken.lineno != token.lineno + 1) {
                         lastCommentTokens.clear();
@@ -151,18 +151,18 @@ public class SyntaxWorker {
     }
 
     private void parseProperty() {
-        var nameToken = match(TokenType.Name);
+        Token nameToken = match(TokenType.Name);
         match(TokenType.Assign);
-        var strToken = match(TokenType.Str);
+        Token strToken = match(TokenType.Str);
         result.properties.put(nameToken.value, strToken.value);
     }
 
     private void parseStruct() {
         match(DS_STRUCT);
-        var nameToken = match(TokenType.Name);
+        Token nameToken = match(TokenType.Name);
         String typeName = nameToken.value;
         match(TokenType.LBrace);
-        var struct = new DSyncStruct(DSyncStructType.UserDefine);
+        DSyncStruct struct = new DSyncStruct(DSyncStructType.UserDefine);
         struct.setTypeName(typeName);
         struct.addComments(extractComments());
 
@@ -180,15 +180,15 @@ public class SyntaxWorker {
 
     private DSyncVariable parseFiled() {
         boolean isArray = false;
-        var typeToken = match(TokenType.Name);
-        var varType = DSyncStructType.match(typeToken.value);
+        Token typeToken = match(TokenType.Name);
+        DSyncStructType varType = DSyncStructType.match(typeToken.value);
         if (test(TokenType.LSquareBracket)) {
             match(TokenType.LSquareBracket);
             match(TokenType.RSquareBracket);
             isArray = true;
         }
-        var nameToken = match(TokenType.Name);
-        var variable = new DSyncVariable(nameToken.value, varType, isArray);
+        Token nameToken = match(TokenType.Name);
+        DSyncVariable variable = new DSyncVariable(nameToken.value, varType, isArray);
         if (varType == DSyncStructType.UserDefine) {
             variable.setTypeName(typeToken.value);
             requireDefinedType.add(typeToken.value);
@@ -196,7 +196,7 @@ public class SyntaxWorker {
         if (test(TokenType.Semicolon)) {
             Token semToken = match(TokenType.Semicolon);
             if (test(TokenType.Comment)) {
-                var commentToken = getToken();
+                Token commentToken = getToken();
                 if (semToken.lineno == commentToken.lineno) {
                     variable.comment = commentToken.value;
                     next();
@@ -208,10 +208,10 @@ public class SyntaxWorker {
 
     private void parseEnum() {
         match(DS_ENUM);
-        var nameToken = match(TokenType.Name);
+        Token nameToken = match(TokenType.Name);
         String typeName = nameToken.value;
         match(TokenType.LBrace);
-        var struct = new DSyncStruct(DSyncStructType.Enum);
+        DSyncStruct struct = new DSyncStruct(DSyncStructType.Enum);
         struct.setTypeName(typeName);
         struct.addComments(extractComments());
 
@@ -225,8 +225,8 @@ public class SyntaxWorker {
     }
 
     private void parseEnumField(DSyncStruct struct, boolean defaultValue) {
-        var nameToken = match(TokenType.Name);
-        var variable = new DSyncVariable(nameToken.value, DSyncStructType.UserDefine, false);
+        Token nameToken = match(TokenType.Name);
+        DSyncVariable variable = new DSyncVariable(nameToken.value, DSyncStructType.UserDefine, false);
         struct.addVariable(variable);
         Token endToken = match(TokenType.Semicolon, TokenType.Comma);
 
@@ -235,7 +235,7 @@ public class SyntaxWorker {
         }
 
         if (test(TokenType.Comment)) {
-            var commentToken = getToken();
+            Token commentToken = getToken();
             if (endToken.lineno == commentToken.lineno) {
                 variable.comment = commentToken.value;
                 next();
@@ -245,7 +245,7 @@ public class SyntaxWorker {
 
     private Token getToken() {
         if (index >= tokens.size()) {
-            var token = tokens.get(tokens.size() - 1);
+            Token token = tokens.get(tokens.size() - 1);
             throw new ParserException("语法错误  第" + token.lineno + "行。");
         }
         return tokens.get(index);
@@ -271,7 +271,7 @@ public class SyntaxWorker {
     }
 
     private void match(String name) {
-        var token = match(TokenType.Name);
+        Token token = match(TokenType.Name);
         if (!name.equals(token.value)) {
             throw new ParserException("语法错误 不能匹配" + name + " 第" + token.lineno + "行。");
         }
@@ -279,12 +279,12 @@ public class SyntaxWorker {
 
     private Token match(TokenType... tokenTypes) {
         if (index >= tokens.size()) {
-            var token = tokens.get(tokens.size() - 1);
+            Token token = tokens.get(tokens.size() - 1);
             TOKEN_MISS_MATCH(tokenTypes[0], token.lineno);
         }
         boolean match = false;
-        var token = tokens.get(index);
-        for (var type : tokenTypes) {
+        Token token = tokens.get(index);
+        for (TokenType type : tokenTypes) {
             if (type == token.type) {
                 match = true;
                 break;
@@ -299,10 +299,10 @@ public class SyntaxWorker {
 
     private Token match(TokenType tokenType) {
         if (index >= tokens.size()) {
-            var token = tokens.get(tokens.size() - 1);
+            Token token = tokens.get(tokens.size() - 1);
             TOKEN_MISS_MATCH(tokenType, token.lineno);
         }
-        var token = tokens.get(index);
+        Token token = tokens.get(index);
         if (token.type != tokenType) {
             TOKEN_MISS_MATCH(tokenType, token.lineno);
         }

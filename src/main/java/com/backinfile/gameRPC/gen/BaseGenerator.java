@@ -1,10 +1,7 @@
 package com.backinfile.gameRPC.gen;
 
 import com.backinfile.gameRPC.Log;
-import com.backinfile.gameRPC.parser.DSyncStructType;
-import com.backinfile.gameRPC.parser.DSyncVariable;
-import com.backinfile.gameRPC.parser.SyntaxWorker;
-import com.backinfile.gameRPC.parser.TokenWorker;
+import com.backinfile.gameRPC.parser.*;
 import com.backinfile.gameRPC.rpc.SysException;
 
 import java.io.File;
@@ -22,7 +19,7 @@ public class BaseGenerator {
 
     public static void main(String[] args) throws IOException {
         Log.gen.info("genStruct start");
-        var result = prepareProto();
+        SyntaxWorker.Result result = prepareProto();
         clearGenFiles();
         genStruct(result);
         genEnum(result);
@@ -34,7 +31,7 @@ public class BaseGenerator {
     private static void clearGenFiles() {
         {
             Log.gen.info("清理 struct\n");
-            var folder = new File(GEN_STRUCT_PATH);
+            File folder = new File(GEN_STRUCT_PATH);
             for (String path : folder.list()) {
                 if (!new File(folder, path).delete()) {
                     Log.gen.warn("清理{}失败", path);
@@ -43,7 +40,7 @@ public class BaseGenerator {
         }
         {
             Log.gen.info("清理 service\n");
-            var folder = new File(GEN_SERVICE_PATH);
+            File folder = new File(GEN_SERVICE_PATH);
             for (String path : folder.list()) {
                 if (!new File(folder, path).delete()) {
                     Log.gen.warn("清理{}失败", path);
@@ -76,7 +73,7 @@ public class BaseGenerator {
         String structPackage = packageName + ".struct";
         String servicePackage = packageName + ".service";
 
-        for (var struct : result.userDefineStructMap.values()) {
+        for (DSyncStruct struct : result.userDefineStructMap.values()) {
             if (struct.getType() == DSyncStructType.Enum) {
                 continue;
             }
@@ -99,10 +96,10 @@ public class BaseGenerator {
         String structPackage = packageName + ".struct";
         String servicePackage = packageName + ".service";
 
-        for (var service : result.serviceMap.values()) {
+        for (DSyncService service : result.serviceMap.values()) {
             String serviceType = "Abstract" + service.name + "Service";
             String proxyType = service.name + "ServiceProxy";
-            var rootMap = new HashMap<String, Object>();
+            HashMap<String, Object> rootMap = new HashMap<String, Object>();
             rootMap.put("packagePath", servicePackage);
             rootMap.put("serviceName", service.name);
             rootMap.put("serviceType", serviceType);
@@ -113,7 +110,7 @@ public class BaseGenerator {
 
             List<Map<String, Object>> rpcList = new ArrayList<>();
             rootMap.put("rpcList", rpcList);
-            for (var rpc : service.rpcList) {
+            for (DSyncService.DSyncRPC rpc : service.rpcList) {
                 Map<String, Object> rpcRootMap = new HashMap<>();
                 rpcList.add(rpcRootMap);
                 rpcRootMap.put("name", rpc.name);
@@ -141,7 +138,7 @@ public class BaseGenerator {
         List<Map<String, Object>> rootMapList = new ArrayList<>();
         int i = 0;
 
-        for (var field : variables) {
+        for (DSyncVariable field : variables) {
             final int index = i++;
             Map<String, Object> fieldMap = new HashMap<>();
             rootMapList.add(fieldMap);
@@ -168,7 +165,7 @@ public class BaseGenerator {
             fieldMap.put("index", index);
 
             if (field.type == DSyncStructType.UserDefine) {
-                var dSyncStruct = result.userDefineStructMap.get(field.typeName);
+                DSyncStruct dSyncStruct = result.userDefineStructMap.get(field.typeName);
                 if (dSyncStruct.getType() == DSyncStructType.Enum) {
                     fieldMap.put("baseType", false);
                     fieldMap.put("enumType", true);
@@ -188,20 +185,20 @@ public class BaseGenerator {
         String servicePackage = packageName + ".service";
 
         // 生成自定义枚举
-        for (var struct : result.userDefineStructMap.values()) {
+        for (DSyncStruct struct : result.userDefineStructMap.values()) {
             if (struct.getType() != DSyncStructType.Enum) {
                 continue;
             }
-            var enumMap = new HashMap<String, Object>();
-            var fields = new ArrayList<Map<String, Object>>();
+            HashMap<String, Object> enumMap = new HashMap<String, Object>();
+            ArrayList<Map<String, Object>> fields = new ArrayList<Map<String, Object>>();
             enumMap.put("packagePath", structPackage);
             enumMap.put("className", struct.getTypeName());
             enumMap.put("fields", fields);
             enumMap.put("comments", struct.getComments());
             enumMap.put("hasComment", !struct.getComments().isEmpty());
             enumMap.put("defaultValue", struct.getDefaultValue());
-            for (var field : struct.getChildren()) {
-                var fieldMap = new HashMap<String, Object>();
+            for (DSyncVariable field : struct.getChildren()) {
+                HashMap<String, Object> fieldMap = new HashMap<String, Object>();
                 fields.add(fieldMap);
                 fieldMap.put("name", field.name);
                 fieldMap.put("hasComment", !field.comment.isEmpty());

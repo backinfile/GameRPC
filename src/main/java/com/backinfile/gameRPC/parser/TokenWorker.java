@@ -102,8 +102,8 @@ public class TokenWorker {
         String resourcePath = TokenWorker.class.getClassLoader().getResource("demo.ds").getPath();
         Path path = Paths.get(resourcePath.substring(1));
         List<String> lines = Files.readAllLines(path);
-        var tokenResult = TokenWorker.getTokens(lines);
-        var result = SyntaxWorker.parse(tokenResult.tokens);
+        Result tokenResult = TokenWorker.getTokens(lines);
+        SyntaxWorker.Result result = SyntaxWorker.parse(tokenResult.tokens);
         System.out.println();
     }
 

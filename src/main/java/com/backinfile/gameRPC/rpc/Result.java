@@ -28,8 +28,8 @@ public class Result implements IResult {
             return null;
         }
         for (int i = 0; i < results.length - 1; i += 2) {
-            var first = results[i];
-            var second = results[i + 1];
+            Object first = results[i];
+            Object second = results[i + 1];
             if (first instanceof String) {
                 if (((String) first).equals(key)) {
                     return (T) second;

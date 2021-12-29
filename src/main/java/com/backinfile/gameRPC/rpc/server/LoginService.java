@@ -38,7 +38,7 @@ public class LoginService extends AbstractLoginService {
         server.start();
 
         timerQueue.applyTimer(Time2.SEC, () -> {
-            var proxy = LoginServiceProxy.newInstance();
+            LoginServiceProxy proxy = LoginServiceProxy.newInstance();
             proxy.verify()
                     .then(context -> {
                         Log.game.info("callback then");
@@ -70,7 +70,7 @@ public class LoginService extends AbstractLoginService {
     }
 
     private void checkIncomingCalls() {
-        for (var entry : connections.entrySet()) {
+        for (Map.Entry<String, Connection> entry : connections.entrySet()) {
             Connection connection = entry.getValue();
             String token = entry.getKey();
 
@@ -113,7 +113,7 @@ public class LoginService extends AbstractLoginService {
             Log.game.info("client connected token:{}", token);
         }
 
-        for (var connection : toRemove) {
+        for (Connection connection : toRemove) {
             waitingVerifyConnectionList.remove(connection);
             if (connection.isAlive()) {
                 connection.close();

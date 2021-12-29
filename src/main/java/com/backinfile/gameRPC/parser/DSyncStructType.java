@@ -26,8 +26,8 @@ public enum DSyncStructType {
     }
 
     public static DSyncStructType match(String matchName) {
-        for (var type : DSyncStructType.values()) {
-            for (var typeName : type.names) {
+        for (DSyncStructType type : DSyncStructType.values()) {
+            for (java.lang.String typeName : type.names) {
                 if (typeName.equals(matchName)) {
                     return type;
                 }

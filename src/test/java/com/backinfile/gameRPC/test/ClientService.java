@@ -13,7 +13,7 @@ public class ClientService extends AbstractClientService {
         super.startup();
 
         timerQueue.applyTimer(Time2.SEC * 5, () -> {
-            var proxy = LoginServiceProxy.newInstance("server", AbstractLoginService.PORT_ID_PREFIX);
+            LoginServiceProxy proxy = LoginServiceProxy.newInstance("server", AbstractLoginService.PORT_ID_PREFIX);
             proxy.verify();
             proxy.heartBeat().then(context -> {
                 Log.client.info("heartBeat callback");
