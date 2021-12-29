@@ -3,6 +3,9 @@ package com.backinfile.gameRPC.test;
 import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.gen.service.AbstractRoomService;
 import com.backinfile.gameRPC.gen.service.LoginServiceProxy;
+import com.backinfile.gameRPC.gen.service.RoomServiceProxy;
+import com.backinfile.gameRPC.gen.struct.DHuman;
+import com.backinfile.gameRPC.gen.struct.DProp;
 import com.backinfile.gameRPC.rpc.Port;
 import com.backinfile.support.Time2;
 
@@ -24,6 +27,13 @@ public class RoomService extends AbstractRoomService {
                 Log.game.info("result = {}", result);
             });
         });
+
+        timerQueue.applyTimer(Time2.SEC * 5, () -> {
+            RoomServiceProxy proxy = RoomServiceProxy.newInstance();
+            proxy.getHumanInfo(12321).then((human, context) -> {
+                Log.game.info("after hash={}", human.hashCode());
+            });
+        });
     }
 
     @Override
@@ -42,6 +52,15 @@ public class RoomService extends AbstractRoomService {
 
     @Override
     public void getHumanInfo(GetHumanInfoContext context, long id) {
-
+        var builder = DHuman.newBuilder();
+        builder.setId(id);
+        builder.setName("qwert");
+        var dProp = DProp.newBuilder();
+        dProp.setPropName("health");
+        dProp.setPropValue(1200d);
+        builder.addProps(dProp.build());
+        var dHuman = builder.build();
+        context.returns(dHuman);
+        Log.game.info("before hash = {}", dHuman.hashCode());
     }
 }

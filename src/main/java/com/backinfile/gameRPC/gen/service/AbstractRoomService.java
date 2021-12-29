@@ -129,8 +129,8 @@ public abstract class AbstractRoomService extends Port {
             this.lastInCall = lastInCall;
         }
 
-        public void returns(String name) {
-            Call callReturn = lastInCall.newCallReturn(new Object[]{name});
+        public void returns(DHuman human) {
+            Call callReturn = lastInCall.newCallReturn(new Object[]{human});
             Node.Instance.handleCall(callReturn);
         }
     }

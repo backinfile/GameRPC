@@ -145,7 +145,7 @@ public class RoomServiceProxy {
 
     @FunctionalInterface
     public interface IGetHumanInfoFutureListener {
-        void onResult(String name, Params context);
+        void onResult(DHuman human, Params context);
     }
 
     public static class GetHumanInfoFuture {

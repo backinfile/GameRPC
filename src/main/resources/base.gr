@@ -9,8 +9,9 @@ struct DNodeVerify {
 }
 
 struct DHuman {
+    long id;
+    String name;
     DProp[] props;
-    DProp singleProp;
 }
 
 struct DProp {
@@ -35,7 +36,7 @@ service Room {
     // 开始游戏
     rpc startGame(client long id);
 
-    rpc getHumanInfo(long id) returns(String name);
+    rpc getHumanInfo(long id) returns(DHuman human);
 }
 
 service Login {

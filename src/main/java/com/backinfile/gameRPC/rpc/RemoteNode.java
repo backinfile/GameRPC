@@ -29,7 +29,7 @@ public abstract class RemoteNode {
     }
 
     // 接受来自远程的消息, 交由当前Node处理
-    private void pulseInput() {
+    protected void pulseInput() {
         while (isAlive()) {
             GameMessage gameMessage = connection.pollGameMessage();
             if (gameMessage == null) {
