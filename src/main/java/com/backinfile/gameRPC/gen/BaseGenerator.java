@@ -124,6 +124,7 @@ public class BaseGenerator {
                 rpcRootMap.put("callString", rpc.getMethodCallString());
                 rpcRootMap.put("returnsString", rpc.getMethodReturnsString());
                 rpcRootMap.put("bodyString", rpc.getMethodBodyString());
+                rpcRootMap.put("comments", rpc.comments);
                 if (rpc.clientVar != null) {
                     rpcRootMap.put("clientVar", getParamRootMap(result, Collections.singletonList(rpc.clientVar)).get(0));
                 }

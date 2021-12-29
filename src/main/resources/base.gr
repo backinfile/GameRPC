@@ -28,8 +28,11 @@ enum EType {
 // 客户端请求这个rpc时，由框架自动填入这个字段
 // 如果rpc没有这个字段，则客户端不能访问
 service Room {
+    // 登陆
+    // 是一个来自客户端的rpc
     rpc login(client long id, String name, bool local) returns(int code, String message, bool online);
 
+    // 开始游戏
     rpc startGame(client long id);
 
     rpc getHumanInfo(long id) returns(String name);
@@ -37,10 +40,6 @@ service Room {
 
 service Login {
     rpc testRPC();
-}
 
-service RPCServer {
-}
-
-service RPCClient {
+    rpc testAdd(int a, int b) returns(int result);
 }

@@ -1,4 +1,5 @@
 package ${packagePath};
+import com.backinfile.gameRPC.gen.GameRPCGenFile;
 
 <#if hasComment>
 /**
@@ -7,6 +8,7 @@ package ${packagePath};
 </#list>
  */
 </#if>
+@GameRPCGenFile
 public enum ${className} {
 <#list fields as field>
 <#if field.hasComment>

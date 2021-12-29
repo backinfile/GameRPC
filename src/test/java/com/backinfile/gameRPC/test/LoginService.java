@@ -13,4 +13,9 @@ public class LoginService extends AbstractLoginService {
         Log.game.info("test rpc function executed");
         context.returns();
     }
+
+    @Override
+    public void testAdd(TestAddContext context, int a, int b) {
+        context.returns(a + b);
+    }
 }

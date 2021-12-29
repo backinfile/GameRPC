@@ -76,4 +76,23 @@ public class Call implements ISerializable {
         code = in.read();
         fromClient = in.read();
     }
+
+    public static class LocalCall extends Call {
+        public boolean fromClient = false;
+        public Object clientVar = null;
+
+        @Override
+        public void readFrom(InputStream in) {
+            super.readFrom(in);
+            fromClient = in.read();
+            clientVar = in.read();
+        }
+
+        @Override
+        public void writeTo(OutputStream out) {
+            super.writeTo(out);
+            out.write(fromClient);
+            out.write(clientVar);
+        }
+    }
 }

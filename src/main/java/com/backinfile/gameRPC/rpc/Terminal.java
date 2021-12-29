@@ -82,7 +82,8 @@ public class Terminal implements ITerminal {
                 toRemove.add(entry.getKey());
             }
         }
-        for (var id : toRemove) {
+        for (long id : toRemove) {
+            Log.core.warn("超时清理 callId:{} port:{}", id, mPort.getId());
             WaitResult waitResult = waitingResponseList.remove(id);
             for (var callback : waitResult.callbackHandlers) {
                 try {

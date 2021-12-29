@@ -4,8 +4,15 @@ import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.rpc.*;
 import com.backinfile.support.*;
 import com.backinfile.support.timer.*;
+import com.backinfile.gameRPC.gen.GameRPCGenFile;
 import com.backinfile.gameRPC.gen.struct.*;
 
+/**
+ * client表示这个字段是客户端表示符， 来自客户端的消息需要这个字段才能访问
+ * 客户端请求这个rpc时，由框架自动填入这个字段
+ * 如果rpc没有这个字段，则客户端不能访问
+ */
+@GameRPCGenFile
 public abstract class AbstractRoomService extends Port {
     public static final String PORT_ID_PREFIX = "RoomService";
 
@@ -72,9 +79,16 @@ public abstract class AbstractRoomService extends Port {
 
     public abstract void pulse(boolean perSec);
 
+    /**
+     * 登陆
+     * 是一个来自客户端的rpc
+     */
     @RPCMethod
     public abstract void login(LoginContext context, @ClientField long id, String name, boolean local);
 
+    /**
+     * 开始游戏
+     */
     @RPCMethod
     public abstract void startGame(StartGameContext context, @ClientField long id);
 

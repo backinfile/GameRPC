@@ -5,10 +5,19 @@ package ${packagePath};
 
 import com.backinfile.gameRPC.rpc.*;
 import com.backinfile.support.func.Action2;
+import com.backinfile.gameRPC.gen.GameRPCGenFile;
 <#list imports as import>
 import ${import};
 </#list>
 
+<#if hasComment>
+/**
+<#list comments as comment>
+ * ${comment}
+</#list>
+ */
+</#if>
+@GameRPCGenFile
 public class ${proxyType} {
     private final String targetNodeId;
     private final String targetPortId;
@@ -32,6 +41,13 @@ public class ${proxyType} {
 
 
 <#list rpcList as rpc>
+<#if (rpc.comments?size>0)>
+    /**
+<#list rpc.comments as comment>
+     * ${comment}
+</#list>
+     */
+</#if>
 <#if rpc.clientVar??>
     @RPCMethod(client = true)
 <#else>

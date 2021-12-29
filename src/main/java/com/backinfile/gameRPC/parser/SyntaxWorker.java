@@ -1,12 +1,12 @@
 package com.backinfile.gameRPC.parser;
 
 import com.backinfile.gameRPC.Log;
+import com.backinfile.support.StreamUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class SyntaxWorker {
     private final List<Token> tokens = new ArrayList<>();
@@ -45,18 +45,7 @@ public class SyntaxWorker {
         // 第一遍，找到所有自定义struct
         index = 0;
         while (index < tokens.size()) {
-            if (test(TokenType.Comment)) {
-                var token = match(TokenType.Comment);
-                lastCommentTokens.add(token);
-
-                if (index < tokens.size()) {
-                    var nextToken = getToken();
-                    if (nextToken != null) {
-                        if (nextToken.lineno != token.lineno + 1) {
-                            lastCommentTokens.clear();
-                        }
-                    }
-                }
+            if (catchComment()) {
                 continue;
             }
 
@@ -70,7 +59,32 @@ public class SyntaxWorker {
                 parseProperty();
             }
         }
+    }
 
+    // 记录一个注释
+    // 如果下一行是空行，清空所有暂存的注释
+    private boolean catchComment() {
+        if (test(TokenType.Comment)) {
+            var token = match(TokenType.Comment);
+            lastCommentTokens.add(token);
+
+            if (index < tokens.size()) {
+                var nextToken = getToken();
+                if (nextToken != null) {
+                    if (nextToken.lineno != token.lineno + 1) {
+                        lastCommentTokens.clear();
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private List<String> extractComments() {
+        List<String> comments = StreamUtils.map(lastCommentTokens, token -> token.value);
+        lastCommentTokens.clear();
+        return comments;
     }
 
     private void parseService() {
@@ -82,11 +96,14 @@ public class SyntaxWorker {
         DSyncService service = new DSyncService();
         service.name = name;
         result.serviceMap.put(name, service);
+        service.comments.addAll(extractComments());
 
+        while (catchComment()) ;
         while (test("rpc")) { // rpc 开始
             next();
             DSyncService.DSyncRPC rpc = new DSyncService.DSyncRPC();
             service.rpcList.add(rpc);
+            rpc.comments.addAll(extractComments());
             Token rpcNameToken = match(TokenType.Name);
             rpc.name = rpcNameToken.value;
             match(TokenType.LRoundBracket); // rpc参数开始
@@ -118,6 +135,7 @@ public class SyntaxWorker {
                 match(TokenType.RRoundBracket); // rpc返回结束
             }
             match(TokenType.Semicolon);
+            while (catchComment()) ;
         } // rpc结束
         match(TokenType.RBrace);
     }
@@ -136,8 +154,7 @@ public class SyntaxWorker {
         match(TokenType.LBrace);
         var struct = new DSyncStruct(DSyncStructType.UserDefine);
         struct.setTypeName(typeName);
-        struct.addComments(lastCommentTokens.stream().map(t -> t.value).collect(Collectors.toList()));
-        lastCommentTokens.clear();
+        struct.addComments(extractComments());
 
         while (!test(TokenType.RBrace)) {
             struct.addVariable(parseFiled());
@@ -185,8 +202,7 @@ public class SyntaxWorker {
         match(TokenType.LBrace);
         var struct = new DSyncStruct(DSyncStructType.Enum);
         struct.setTypeName(typeName);
-        struct.addComments(lastCommentTokens.stream().map(t -> t.value).collect(Collectors.toList()));
-        lastCommentTokens.clear();
+        struct.addComments(extractComments());
 
         boolean defaultValue = true;
         while (!test(TokenType.RBrace)) {

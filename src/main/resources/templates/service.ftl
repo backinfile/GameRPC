@@ -4,6 +4,7 @@ import com.backinfile.gameRPC.Log;
 import com.backinfile.gameRPC.rpc.*;
 import com.backinfile.support.*;
 import com.backinfile.support.timer.*;
+import com.backinfile.gameRPC.gen.GameRPCGenFile;
 <#list imports as import>
 import ${import};
 </#list>
@@ -15,6 +16,7 @@ import ${import};
 </#list>
  */
 </#if>
+@GameRPCGenFile
 public abstract class ${serviceType} extends Port {
     public static final String PORT_ID_PREFIX = "${serviceName}Service";
 
@@ -76,6 +78,13 @@ public abstract class ${serviceType} extends Port {
     public abstract void pulse(boolean perSec);
 
 <#list rpcList as rpc>
+<#if (rpc.comments?size>0)>
+    /**
+<#list rpc.comments as comment>
+     * ${comment}
+</#list>
+     */
+</#if>
     @RPCMethod
     public abstract void ${rpc.bodyString};
 

@@ -2,8 +2,15 @@ package com.backinfile.gameRPC.gen.service;
 
 import com.backinfile.gameRPC.rpc.*;
 import com.backinfile.support.func.Action2;
+import com.backinfile.gameRPC.gen.GameRPCGenFile;
 import com.backinfile.gameRPC.gen.struct.*;
 
+/**
+ * client表示这个字段是客户端表示符， 来自客户端的消息需要这个字段才能访问
+ * 客户端请求这个rpc时，由框架自动填入这个字段
+ * 如果rpc没有这个字段，则客户端不能访问
+ */
+@GameRPCGenFile
 public class RoomServiceProxy {
     private final String targetNodeId;
     private final String targetPortId;
@@ -26,12 +33,19 @@ public class RoomServiceProxy {
     }
 
 
+    /**
+     * 登陆
+     * 是一个来自客户端的rpc
+     */
     @RPCMethod(client = true)
     public LoginFuture login(String name, boolean local) {
         Call call = Proxy.rpcRequest(targetNodeId, targetPortId, AbstractRoomService.M.LOGIN_STRING_BOOLEAN, new Object[]{name, local});
         return new LoginFuture(Port.getCurrentPort(), call.id);
     }
 
+    /**
+     * 开始游戏
+     */
     @RPCMethod(client = true)
     public StartGameFuture startGame() {
         Call call = Proxy.rpcRequest(targetNodeId, targetPortId, AbstractRoomService.M.START_GAME, new Object[]{});
