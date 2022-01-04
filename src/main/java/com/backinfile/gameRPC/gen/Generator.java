@@ -41,6 +41,9 @@ public class Generator {
         {
             Log.gen.info("清理 struct\n");
             File folder = new File(genStructPath);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
             for (String path : folder.list()) {
                 if (!new File(folder, path).delete()) {
                     Log.gen.warn("清理{}失败", path);
@@ -50,6 +53,9 @@ public class Generator {
         {
             Log.gen.info("清理 service\n");
             File folder = new File(genServicePath);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
             for (String path : folder.list()) {
                 if (!new File(folder, path).delete()) {
                     Log.gen.warn("清理{}失败", path);
